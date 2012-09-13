@@ -1,0 +1,9 @@
+<stack>
+  <description brief="Armed-turtlebot2">Armed-turtlebot</description>
+  <author>Maintained by uservb</author>
+  <license>BSD</license>  
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/Armed-turtlebot</url>
+  <depend stack="ros" />
+
+</stack>
