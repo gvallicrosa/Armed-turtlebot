@@ -9,6 +9,7 @@ import rospy
 
 # ROS messages
 from std_msgs.msg import Float64
+from dynamixel_msgs.msg import JointState, MotorStateList
 
 # Maths and sleep
 from numpy import sin, pi, arange
@@ -17,12 +18,18 @@ from time import sleep
 
 
 ################################################################################
+#def sub_grasp(msg):
+#def sub_elbow_flex(msg):
+#def sub_wrist_roll(msg):
+#def sub_shoulder_pan(msg):
+#def sub_shoulder_pitch(msg):
+################################################################################
 def main():
     # Initialize ROS node
     rospy.init_node('UWS_driver', anonymous=True)
     rospy.loginfo('UWS_driver node initialized')
     
-    # Arm publishers
+    # Arm publishers (control the arm)
     pub_grasp = rospy.Publisher("/right_finger_controller/command", Float64)
     pub_elbow_flex = rospy.Publisher("/elbow_flex_controller/command", Float64)
     pub_wrist_roll = rospy.Publisher("/wrist_roll_controller/command", Float64)
@@ -36,14 +43,14 @@ def main():
         pub_grasp.publish(Float64(val))
         sleep(0.05)
     
-    # Arm subscribers
-#    /diagnostics
-#    /elbow_flex_controller/state
-#    /motor_states/smart_arm
-#    /right_finger_controller/state
-#    /shoulder_pan_controller/state
-#    /shoulder_pitch_controller/state
-#    /wrist_roll_controller/state
+    # Arm subscribers (to check joint load, velocities...)
+#    rospy.Subscriber('/right_finger_controller/state',   JointState, sub_grasp)
+#    rospy.Subscriber('/elbow_flex_controller/state',     JointState, sub_elbow_flex)
+#    rospy.Subscriber('/wrist_roll_controller/state',     JointState, sub_wrist_roll)
+#    rospy.Subscriber('/shoulder_pan_controller/state',   JointState, sub_shoulder_pan)
+#    rospy.Subscriber('/shoulder_pitch_controller/state', JointState, sub_shoulder_pitch)
+
+
 
 ############################################################################################################
 if __name__ == '__main__':
