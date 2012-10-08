@@ -7,7 +7,7 @@
   <author>Guillem Vallicrosa Massaguer</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/smart_arm_fk_ik</url>
+  <url>http://ros.org/wiki/smart_arm_node</url>
   <depend package="std_msgs"/>
   <depend package="rospy"/>
   <depend package="roscpp"/>

@@ -1,4 +1,4 @@
-from __future__ import division
+#from __future__ import division
 
 # Basics
 import ipdb
@@ -7,11 +7,15 @@ roslib.load_manifest('smart_arm_node')
 import rospy
 
 # ROS messages
-from std_msgs.msg import Float64, Boolean
+from std_msgs.msg import Float64, Bool
 from dynamixel_msgs.msg import JointState, MotorStateList
 
 # Maths
-from numpy import pi, arctan2, cos, sin, array, sqrt, arccos, eye, array, dot
+from numpy import pi, arctan2, cos, sin, array, sqrt, arccos, eye, array, dot, zeros
+
+# Initialize ROS node
+rospy.init_node('smart_arm_node', anonymous=True)
+rospy.loginfo('smart_arm_node initialized')
 
 ################################################################################
 def check_j1(msg):
@@ -28,18 +32,59 @@ def check_j5(msg):
     
     
 ################################################################################
-def check_joint(n,msg):
+def check_joint(i,msg):
     '''
     Checks if a joint is still moving and also if the torque is too big and the
     movement should be stopped.
     '''
-    check_joint(1,msg)
+
+    joints_move[i-1] = msg.is_moving
+    joints_load[i-1] = abs(msg.load) > 0.8
+    joints_curr[i-1] = msg.current_pos
+    
+    if joints_load[i-1]:
+        print 'Too much load on joint %s\nStopping joint...\n' % i
+        print msg.load
+        pub_move[i-1].publish(msg.current_pos)
+    
+#    JointState message
+#    std_msgs/Header header
+#      uint32 seq
+#      time stamp
+#      string frame_id
+#    string name
+#    int32[] motor_ids
+#    int32[] motor_temps
+#    float64 goal_pos
+#    float64 current_pos
+#    float64 error
+#    float64 velocity
+#    float64 load
+#    bool is_moving
+    
+    
+    
 ################################################################################
 def get_arm_limits():
     '''
-    Obtains the limits from the parameter server of the "smart_arm_controller"
+    Obtains the limits for each joint from the parameter server
+    of the "smart_arm_controller"
     '''
-    rospy.get_param(param_name)
+    tic2rad = rospy.get_param('/dynamixel/smart_arm/6/radians_per_encoder_tick')
+    joints = ['/shoulder_pan_controller','/shoulder_pitch_controller',
+              '/elbow_flex_controller', '/wrist_roll_controller', '/right_finger_controller']
+    motors = ['/motor',] + ['/motor_master',]*2 + ['/motor',]*2
+    qlims = zeros((5,2))
+    
+    for i in range(len(joints)):
+        vini = rospy.get_param(joints[i] + motors[i] + '/init')
+        vmax = rospy.get_param(joints[i] + motors[i] + '/max')
+        vmin = rospy.get_param(joints[i] + motors[i] + '/min')
+        qlims[i,0] = (vmin-vini)*tic2rad # TODO: check if changed order
+        qlims[i,1] = (vmax-vini)*tic2rad
+    
+    return qlims
+    
     
     
 ################################################################################
@@ -137,6 +182,7 @@ class Arm(object):
         else:
             q3 = 2*pi - q3
             q2 = 1
+        # if more than one solution, take the nearest to curent one
         return [q1,q2,q3,q4]
     
     
@@ -155,7 +201,7 @@ class Arm(object):
         # Check for torques
         
         
-    def move(self,x,y,z):
+    def move_xyz(self,x,y,z):
         '''
         Moves the arm to specified (x,y,z) position of the end effector, using
         the inverse kinematics solution.
@@ -166,27 +212,44 @@ class Arm(object):
 
 
 ################################################################################
+# Control of the joint status initialization
+joints_move = [False,]*5
+joints_load = [False,]*5
+joints_curr = [0,]*5
+
 # Publishers
+## To controller
 pub_j1 = rospy.Publisher("/shoulder_pan_controller/command",   Float64)
 pub_j2 = rospy.Publisher("/shoulder_pitch_controller/command", Float64)
 pub_j3 = rospy.Publisher("/elbow_flex_controller/command",     Float64)
 pub_j4 = rospy.Publisher("/wrist_roll_controller/command",     Float64)
 pub_j5 = rospy.Publisher("/right_finger_controller/command",   Float64)
 pub_move = [pub_j1, pub_j2, pub_j3, pub_j4, pub_j5]
-
-move_state = rospy.Publisher("/smart_arm_node/move/state", Boolean)
-grab_state = rospy.Publisher("/smart_arm_node/grab/state", Boolean)
+## Inputs
+move_state = rospy.Publisher("/smart_arm_node/move/state", Bool)
+grab_state = rospy.Publisher("/smart_arm_node/grab/state", Bool)
     
 # Subscribers
-stat_j1 = rospy.Subscriber('/shoulder_pan_controller/state', JointState, check_j1)
-stat_j2 = rospy.Subscriber('/shoulder_pan_controller/state', JointState, check_j2)
-stat_j3 = rospy.Subscriber('/shoulder_pan_controller/state', JointState, check_j3)
-stat_j4 = rospy.Subscriber('/shoulder_pan_controller/state', JointState, check_j4)
-stat_j5 = rospy.Subscriber('/shoulder_pan_controller/state', JointState, check_j5)
-
-move_com = rospy.Subscriber('/smart_arm_node/move/command', JointState, check_j1)
+## From controller
+stat_j1 = rospy.Subscriber('/shoulder_pan_controller/state',   JointState, check_j1)
+stat_j2 = rospy.Subscriber('/shoulder_pitch_controller/state', JointState, check_j2)
+stat_j3 = rospy.Subscriber('/elbow_flex_controller/state',     JointState, check_j3)
+stat_j4 = rospy.Subscriber('/wrist_roll_controller/state',     JointState, check_j4)
+stat_j5 = rospy.Subscriber('/right_finger_controller/state',   JointState, check_j5)
+## Inputs
+move_xyz = rospy.Subscriber('/smart_arm_node/move/xyz_command', JointState, check_j1)
+move_rad = rospy.Subscriber('/smart_arm_node/move/rad_command', JointState, check_j1)
 grab_com = rospy.Subscriber('/smart_arm_node/grab/command', JointState, check_j1)
 
+# Get controller limits
+try:
+    qlims = get_arm_limits()
+except: # arm controller not initialized
+# TODO: check all!!!!
+    print 'Error' # TODO:change to rosdebug info
+    qlims = array([[-1.22207136,1.22207136],[1.04822021,-1.97372195],[1.88679637,-1.97372195],
+                   [2.61288061,-2.61799388],[-0.24032366,0.84368943]])
+                   
 # Sizes obtained with DH method
 a1 = 0.06
 a2 = 0.175
@@ -209,7 +272,7 @@ pos_horizontal = [0,0,pi/2,0]
 
 # Forward kinematics
 print arm.fkine(pos_horizontal)
-print arm.ikine(0.1,0.1,0.1)
+#print arm.ikine(0.1,0.1,0.1)
     
 
-ipdb.set_trace()
+rospy.spin()
