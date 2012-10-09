@@ -1,0 +1,147 @@
+# ROS NETWORK
+export ROS_MASTER_URI=http://192.168.1.4:11311 #Turtlebot 3 as roscore
+export ROS_IP=192.168.1.4
+
+# ROS NETWORK
+export ROS_MASTER_URI=http://192.168.1.111:11311 #This computer as roscore
+export ROS_IP=192.168.1.111
+
+# ROS LOCAL
+#export ROS_MASTER_URI=http://localhost:11311
+#export ROS_IP=127.0.0.1
+
+then: source .bashrc
+
+# Obtain the robot description for arm_navigation
+rosrun xacro xacro.py urdf/smart_arm_robot.xacro > arm.xml
+roslaunch planning_environment planning_description_configuration_wizard.launch urdf_package:=smart_arm_description urdf_path:=urdf/arm.xml
+ 
+# Topics available
+/diagnostics
+/elbow_flex_controller/command
+/elbow_flex_controller/state
+/motor_states/smart_arm
+/right_finger_controller/command
+/right_finger_controller/state
+/shoulder_pan_controller/command
+/shoulder_pan_controller/state
+/shoulder_pitch_controller/command
+/shoulder_pitch_controller/state
+/wrist_roll_controller/command
+/wrist_roll_controller/state
+
+# Example
+rostopic pub -1 /shoulder_pan_controller/command std_msgs/Float64 0
+rostopic pub -1 /shoulder_pitch_controller/command std_msgs/Float64 0
+rostopic pub -1 /elbow_flex_controller/command std_msgs/Float64 0
+rostopic pub -1 /wrist_roll_controller/command std_msgs/Float64 0
+rostopic pub -1 /right_finger_controller/command std_msgs/Float64 0
+
+# rosparam get /dynamixel/smart_arm/3/encoder_ticks_per_radian
+195.56959407132098 # same for all motors
+
+# Parameters
+rosparam get /dynamixel/smart_arm/1/max_angle
+rosparam get /dynamixel/smart_arm/1/min_angle
+rosparam get /dynamixel/smart_arm/1/encoder_ticks_per_radian
+
+# Services available
+/elbow_flex_controller/set_compliance_margin
+/elbow_flex_controller/set_compliance_punch
+/elbow_flex_controller/set_compliance_slope
+/elbow_flex_controller/set_speed
+/elbow_flex_controller/set_torque_limit
+/elbow_flex_controller/torque_enable
+
+/right_finger_controller/set_compliance_margin
+/right_finger_controller/set_compliance_punch
+/right_finger_controller/set_compliance_slope
+/right_finger_controller/set_speed
+/right_finger_controller/set_torque_limit
+/right_finger_controller/torque_enable
+
+/shoulder_pan_controller/set_compliance_margin
+/shoulder_pan_controller/set_compliance_punch
+/shoulder_pan_controller/set_compliance_slope
+/shoulder_pan_controller/set_speed
+/shoulder_pan_controller/set_torque_limit
+/shoulder_pan_controller/torque_enable
+
+/shoulder_pitch_controller/set_compliance_margin
+/shoulder_pitch_controller/set_compliance_punch
+/shoulder_pitch_controller/set_compliance_slope
+/shoulder_pitch_controller/set_speed
+/shoulder_pitch_controller/set_torque_limit
+/shoulder_pitch_controller/torque_enable
+
+/smartarm_motor_manager/meta/restart_controller
+/smartarm_motor_manager/meta/start_controller
+/smartarm_motor_manager/meta/stop_controller
+/smartarm_motor_manager/smart_arm/restart_controller
+/smartarm_motor_manager/smart_arm/start_controller
+/smartarm_motor_manager/smart_arm/stop_controller
+
+/wrist_roll_controller/set_compliance_margin
+/wrist_roll_controller/set_compliance_punch
+/wrist_roll_controller/set_compliance_slope
+/wrist_roll_controller/set_speed
+/wrist_roll_controller/set_torque_limit
+/wrist_roll_controller/torque_enable
+
+# rosservice info /elbow_flex_controller/set_compliance_margin
+Node: /smartarm_motor_manager
+URI: rosrpc://laptop-K55VM:51848
+Type: dynamixel_controllers/SetComplianceMargin
+Args: margin
+rosservice type /elbow_flex_controller/set_compliance_margin | rossrv show
+uint8 margin
+---
+
+# rosservice info /elbow_flex_controller/set_compliance_punch
+Node: /smartarm_motor_manager
+URI: rosrpc://laptop-K55VM:51848
+Type: dynamixel_controllers/SetCompliancePunch
+Args: punch
+rosservice type /elbow_flex_controller/set_compliance_punch | rossrv show
+uint8 punch
+---
+
+# rosservice info /elbow_flex_controller/set_compliance_slope
+Node: /smartarm_motor_manager
+URI: rosrpc://laptop-K55VM:51848
+Type: dynamixel_controllers/SetComplianceSlope
+Args: slope
+rosservice type /elbow_flex_controller/set_compliance_slope | rossrv show
+uint8 slope
+---
+
+# rosservice info /elbow_flex_controller/set_speed
+Node: /smartarm_motor_manager
+URI: rosrpc://laptop-K55VM:51848
+Type: dynamixel_controllers/SetSpeed
+Args: speed
+rosservice type /elbow_flex_controller/set_speed | rossrv show
+float64 speed
+---
+
+# rosservice info /elbow_flex_controller/set_torque_limit
+Node: /smartarm_motor_manager
+URI: rosrpc://laptop-K55VM:51848
+Type: dynamixel_controllers/SetTorqueLimit
+Args: torque_limit
+rosservice type /elbow_flex_controller/set_torque_limit | rossrv show
+float64 torque_limit
+---
+
+# rosservice info /elbow_flex_controller/torque_enable
+Node: /smartarm_motor_manager
+URI: rosrpc://laptop-K55VM:51848
+Type: dynamixel_controllers/TorqueEnable
+Args: torque_enable
+rosservice type /elbow_flex_controller/torque_enable | rossrv show
+bool torque_enable
+---
+
+
+
+
