@@ -13,9 +13,7 @@ from dynamixel_msgs.msg import JointState, MotorStateList
 # Maths
 from numpy import pi, arctan2, cos, sin, array, sqrt, arccos, eye, array, dot, zeros
 
-# Initialize ROS node
-rospy.init_node('smart_arm_node', anonymous=True)
-rospy.loginfo('smart_arm_node initialized')
+
 
 ################################################################################
 def check_j1(msg):
@@ -47,6 +45,8 @@ def check_joint(i,msg):
         print msg.load
         pub_move[i-1].publish(msg.current_pos)
     
+    # Send tranformations for rviz
+    
 #    JointState message
 #    std_msgs/Header header
 #      uint32 seq
@@ -70,6 +70,7 @@ def get_arm_limits():
     Obtains the limits for each joint from the parameter server
     of the "smart_arm_controller"
     '''
+    # Names of the parameters to get
     tic2rad = rospy.get_param('/dynamixel/smart_arm/6/radians_per_encoder_tick')
     joints = ['/shoulder_pan_controller','/shoulder_pitch_controller',
               '/elbow_flex_controller', '/wrist_roll_controller', '/right_finger_controller']
@@ -80,8 +81,8 @@ def get_arm_limits():
         vini = rospy.get_param(joints[i] + motors[i] + '/init')
         vmax = rospy.get_param(joints[i] + motors[i] + '/max')
         vmin = rospy.get_param(joints[i] + motors[i] + '/min')
-        qlims[i,0] = (vmin-vini)*tic2rad # TODO: check if changed order
-        qlims[i,1] = (vmax-vini)*tic2rad
+        qlims[i,0] = -abs(vmin-vini)*tic2rad # minimum
+        qlims[i,1] = +abs(vmax-vini)*tic2rad # maximum
     
     return qlims
     
@@ -106,12 +107,6 @@ class Link(object):
         self.alpha = alpha
         self.offset = offset
         
-        
-    def tr(self):
-        '''
-        Returns the forward kinematics matrix of the link at the design zero.
-        '''
-        self.tr(self.theta)
         
         
     def tr(self,q=0):
@@ -148,7 +143,7 @@ class Arm(object):
         assert isinstance(links,list)
         self.links = links
         self.n = len(links)
-        self.limits = get_arm_limits()
+        
     
     
     def fkine(self,qs):
@@ -212,67 +207,79 @@ class Arm(object):
 
 
 ################################################################################
+# Default values
+qlims = array([[-1.22207136,1.22207136],[-1.04822021,1.97372195],[-1.88679637,1.97372195],
+               [-2.61288061,2.61799388],[-0.24032366,0.84368943]])
+
 # Control of the joint status initialization
 joints_move = [False,]*5
 joints_load = [False,]*5
 joints_curr = [0,]*5
 
-# Publishers
-## To controller
-pub_j1 = rospy.Publisher("/shoulder_pan_controller/command",   Float64)
-pub_j2 = rospy.Publisher("/shoulder_pitch_controller/command", Float64)
-pub_j3 = rospy.Publisher("/elbow_flex_controller/command",     Float64)
-pub_j4 = rospy.Publisher("/wrist_roll_controller/command",     Float64)
-pub_j5 = rospy.Publisher("/right_finger_controller/command",   Float64)
-pub_move = [pub_j1, pub_j2, pub_j3, pub_j4, pub_j5]
-## Inputs
-move_state = rospy.Publisher("/smart_arm_node/move/state", Bool)
-grab_state = rospy.Publisher("/smart_arm_node/grab/state", Bool)
+
+
+################################################################################
+if __name__ == '__main__':
+    # Initialize ROS node
+    rospy.init_node('smart_arm_node', anonymous=True)
+    rospy.loginfo('smart_arm_node initialized')
     
-# Subscribers
-## From controller
-stat_j1 = rospy.Subscriber('/shoulder_pan_controller/state',   JointState, check_j1)
-stat_j2 = rospy.Subscriber('/shoulder_pitch_controller/state', JointState, check_j2)
-stat_j3 = rospy.Subscriber('/elbow_flex_controller/state',     JointState, check_j3)
-stat_j4 = rospy.Subscriber('/wrist_roll_controller/state',     JointState, check_j4)
-stat_j5 = rospy.Subscriber('/right_finger_controller/state',   JointState, check_j5)
-## Inputs
-move_xyz = rospy.Subscriber('/smart_arm_node/move/xyz_command', JointState, check_j1)
-move_rad = rospy.Subscriber('/smart_arm_node/move/rad_command', JointState, check_j1)
-grab_com = rospy.Subscriber('/smart_arm_node/grab/command', JointState, check_j1)
+    # Publishers
+    ## To controller
+    pub_j1 = rospy.Publisher("/shoulder_pan_controller/command",   Float64)
+    pub_j2 = rospy.Publisher("/shoulder_pitch_controller/command", Float64)
+    pub_j3 = rospy.Publisher("/elbow_flex_controller/command",     Float64)
+    pub_j4 = rospy.Publisher("/wrist_roll_controller/command",     Float64)
+    pub_j5 = rospy.Publisher("/right_finger_controller/command",   Float64)
+    pub_move = [pub_j1, pub_j2, pub_j3, pub_j4, pub_j5]
+    ## Outputs
+    move_state = rospy.Publisher("/smart_arm_node/move/state", Bool)
+    grab_state = rospy.Publisher("/smart_arm_node/grab/state", Bool)
+        
+    # Subscribers
+    ## From controller
+    stat_j1 = rospy.Subscriber('/shoulder_pan_controller/state',   JointState, check_j1)
+    stat_j2 = rospy.Subscriber('/shoulder_pitch_controller/state', JointState, check_j2)
+    stat_j3 = rospy.Subscriber('/elbow_flex_controller/state',     JointState, check_j3)
+    stat_j4 = rospy.Subscriber('/wrist_roll_controller/state',     JointState, check_j4)
+    stat_j5 = rospy.Subscriber('/right_finger_controller/state',   JointState, check_j5)
+    ## Inputs
+    move_xyz = rospy.Subscriber('/smart_arm_node/move/xyz_command', JointState, check_j1)
+    move_rad = rospy.Subscriber('/smart_arm_node/move/rad_command', JointState, check_j1)
+    grab_com = rospy.Subscriber('/smart_arm_node/grab/command', JointState, check_j1)
 
-# Get controller limits
-try:
-    qlims = get_arm_limits()
-except: # arm controller not initialized
-# TODO: check all!!!!
-    print 'Error' # TODO:change to rosdebug info
-    qlims = array([[-1.22207136,1.22207136],[1.04822021,-1.97372195],[1.88679637,-1.97372195],
-                   [2.61288061,-2.61799388],[-0.24032366,0.84368943]])
-                   
-# Sizes obtained with DH method
-a1 = 0.06
-a2 = 0.175
-d1 = 0.14
-d4 = 0.12
+    # Get controller limits
+    try:
+        qlims = get_arm_limits()
+        print '# Readed limits from controller:\n', qlims, '\n'
+    except: # arm controller not initialized
+        print '# Error: No controller found.\nLoading standard joint limits' # TODO:change to rosdebug info
+        qlims = array([[-1.22207136,1.22207136],[-1.04822021,1.97372195],[-1.88679637,1.97372195],
+                       [-2.61288061,2.61799388],[-0.24032366,0.84368943]])
+                       
+    # Sizes obtained with DH method
+    a1 = 0.06
+    a2 = 0.175
+    d1 = 0.14
+    d4 = 0.12
 
-# Link creation
-links = list()
-links.append( Link(   0,  d1, a1, -pi/2,     0) )
-links.append( Link(   0,   0, a2,    pi, -pi/4) ) # offset=-45
-links.append( Link(pi/2,   0,  0, -pi/2,     0) )
-links.append( Link(   0, -d4,  0,    pi,     0) )
+    # Link creation
+    links = list()
+    links.append( Link(   0,  d1, a1, -pi/2,     0) )
+    links.append( Link(   0,   0, a2,    pi, -pi/4) ) # offset=-45
+    links.append( Link(pi/2,   0,  0, -pi/2,     0) )
+    links.append( Link(   0, -d4,  0,    pi,     0) )
 
-# Robot creation
-arm = Arm(links)
+    # Robot creation
+    arm = Arm(links)
 
-# Predefined positions
-pos_offset = [0,-pi/4,0,0]
-pos_horizontal = [0,0,pi/2,0]
+    # Predefined positions
+    pos_offset = [0,-pi/4,0,0]
+    pos_horizontal = [0,0,pi/2,0]
 
-# Forward kinematics
-print arm.fkine(pos_horizontal)
-#print arm.ikine(0.1,0.1,0.1)
-    
-
-rospy.spin()
+    # Forward kinematics
+    print '# Forward kinematics test:\n', arm.fkine([0,0,0,0]), '\n'
+    #print arm.ikine(0.1,0.1,0.1)
+        
+    # Continue execution forever
+    rospy.spin()

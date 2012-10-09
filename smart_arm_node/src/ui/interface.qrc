@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="all">
+    <file>schematic.svg</file>
+  </qresource>
+</RCC>
