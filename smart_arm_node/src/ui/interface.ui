@@ -696,7 +696,7 @@
  </widget>
  <resources>
   <include location="interface.qrc"/>
-  <include location="../../../../../interface.qrc"/>
+  <include location="interface.qrc"/>
  </resources>
  <connections/>
 </ui>

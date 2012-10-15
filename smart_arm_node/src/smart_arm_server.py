@@ -38,18 +38,18 @@ def ask_server(req):
     elif req.what == 2:
         # move radians
         qs = list(req.data)
-        ans = arm.move(qs)
+        ans = [arm.move_all(qs),]
     elif req.what == 3:
         # move xyz
         xyz = list(req.data)
-        ans = arm.move_xyz(xyz)
+        ans = [arm.move_xyz(xyz),]
     elif req.what == 4:
         # grab/ungrab
-        ans = arm.grab()
+        ans = [arm.grab(),]
     else:
         # no valid request
         print 'no valid request\n'
-        ans = 0
+        ans = [0,]
 
     return SmartArmServiceResponse(ans)
         
@@ -80,9 +80,9 @@ def check_joint(i,msg):
     joints_load[i-1] = abs(msg.load) > 0.8
     joints_curr[i-1] = msg.current_pos
     
-    if joints_load[i-1]:
-        print 'Too much load on joint %s\nStopping joint...\n' % i
-        print msg.load
+    if joints_load[i-1] and i==5:
+        print 'Too much load on joint %s\nStopping joint...' % i
+        print 'Load = ', msg.load
         pub_move[i-1].publish(msg.current_pos)
     
     
@@ -213,13 +213,14 @@ class Arm(object):
         Grabs or ungrabs depending on the joint state.
         """
         # Check condition
-        if joints_curr[4] < qlims[4,0] + 0.1 and not auto:
+        if abs(joints_curr[4]-qlims[4,0]) < 0.1 and auto:
             val = +1 # close
         else:
             val = -1 # open
             
         # Publish to controller
         pub_move[4].publish(Float64(val))
+        print 'published = ',val
             
         # Wait until finish movement
         while sum(joints_move) > 0:
@@ -229,7 +230,7 @@ class Arm(object):
         
     
     
-    def move(self,qs):
+    def move_all(self,qs):
         '''
         Moves the arm to the specified joint positions.
         '''
@@ -250,6 +251,14 @@ class Arm(object):
             return 1
         else:
             return 0
+            
+            
+            
+    def move_joint(i,q):
+        '''
+        Moves the specified joint "i" to the specified position "q".
+        '''
+        
         
         
     def move_xyz(self,xyz):
@@ -258,7 +267,7 @@ class Arm(object):
         the inverse kinematics solution.
         '''
         qs = self.ikine(xyz)
-        return self.move(qs)
+        return self.move_all(qs)
 
 
 
@@ -326,9 +335,6 @@ if __name__ == '__main__':
 
     # Robot creation
     arm = Arm(links)
-    
-    # Init with had open
-    arm.grab(False) 
 
     # Forward kinematics
     print '# Forward kinematics test:\n', arm.fkine([0,0,0,0]), '\n'

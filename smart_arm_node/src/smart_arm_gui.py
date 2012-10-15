@@ -12,7 +12,7 @@ import rospy
 
 # Messages and services
 from std_msgs.msg import Float64
-from smart_arm_node.srv import SmartArmService
+from smart_arm_node.srv import SmartArmService, SmartArmServiceRequest
 
 # Math
 from numpy import array
@@ -33,14 +33,20 @@ def get_spos(link,val):
     
 
 ################################################################################
-def from_arm_server(kind,data=0):
+def from_arm_server(kind,data=[0,]):
     """
     Function to request services from the smart_arm_server.
     """
     rospy.wait_for_service('get_arm_srv')
     try:
         use_service = rospy.ServiceProxy('get_arm_srv', SmartArmService)
+        print '============='
+        print kind
+        print data
+#        ipdb.set_trace()
         resp = use_service(kind,data)
+        print '-------------'
+        print resp.values
         return array(resp.values)
     except rospy.ServiceException, e:
         print "Service call failed: %s"%e
