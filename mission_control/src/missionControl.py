@@ -23,53 +23,25 @@ def exit_banner():
     print(font.red + "===================================================================" +
           font.normal +'\n')
 
-def t_systemCheck():
+def systemCheck():
     rospy.loginfo("Starting 'system check'...")
 
-def t_emergencyStop():
+def requestService(service):
+    serviceName = service.__name__    
     status = 0
-    rospy.wait_for_service('emergencyStop')
+    rospy.wait_for_service(serviceName)
     try:
-        rq_emergencyStop = rospy.ServiceProxy('emergencyStop', emergencyStop)
-        reply = rq_emergencyStop()
+        rq = rospy.ServiceProxy(serviceName, service)
+        reply = rq()
         status = reply.status
     except rospy.ServiceException, e:
         print "Service call failed: %s"%e
         status = 1
     if status == 0:
-        rospy.loginfo("Request for 'emergency stop' was successful.")
+        rospy.loginfo("Request for '" + serviceName + "' was successful.")
     else:
-        rospy.loginfo("Request for 'emergency stop' was unsuccessful.")
+        rospy.loginfo("Request for '" + serviceName + "' was unsuccessful.")
 
-def t_generatePlan():
-    status = 0
-    rospy.wait_for_service('generatePlan')
-    try:
-        rq_generatePlan = rospy.ServiceProxy('generatePlan', generatePlan)
-        reply = rq_generatePlan()
-        status = reply.status
-    except rospy.ServiceException, e:
-        print "Service call failed: %s"%e
-        status = 1
-    if status == 0:
-        rospy.loginfo("Request for 'generate plan' was successful.")
-    else:
-        rospy.loginfo("Request for 'generate plan' was unsuccessful.")
-
-def t_executePlan():
-    status = 0
-    rospy.wait_for_service('executePlan')
-    try:
-        rq_executePlan = rospy.ServiceProxy('executePlan', executePlan)
-        reply = rq_executePlan()
-        status = reply.status
-    except rospy.ServiceException, e:
-        print "Service call failed: %s"%e
-        status = 1
-    if status == 0:
-        rospy.loginfo("Request for 'execute plan' was successful.")
-    else:
-        rospy.loginfo("Request for 'execute plan' was unsuccessful.")
 
 ###############################################################################
 
@@ -79,10 +51,10 @@ if __name__ == '__main__':
    
     # BEGIN MISSION #
 
-    t_systemCheck() 
-    t_emergencyStop()
-    t_generatePlan()
-    t_executePlan()
+    systemCheck() 
+    requestService(emergencyStop)
+    requestService(generatePlan)
+    requestService(executePlan)
 
     # END MISSION #
 
