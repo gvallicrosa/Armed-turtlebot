@@ -17,7 +17,11 @@ from mission_control.srv import *
 class motionControl:
 
     def __init__(self):
+        self.status = 0
         self.mp = motionPlan()
+
+    def h_motionControlStatus(self, data):
+        return motionControlStatusResponse(self.status)        
 
     def h_emergencyStop(self, data):
         status = 0
@@ -48,6 +52,7 @@ class motionControl:
         return executePlanResponse(status)        
 
     def launchServices(self):
+        s_motionControl = rospy.Service('motionControlStatus', motionControlStatus, self.h_motionControlStatus)
         s_emergencyStop = rospy.Service('emergencyStop', emergencyStop, self.h_emergencyStop)
         s_generatePlan = rospy.Service('generatePlan', generatePlan, self.h_generatePlan)
         s_executePlan = rospy.Service('executePlan', executePlan, self.h_executePlan)

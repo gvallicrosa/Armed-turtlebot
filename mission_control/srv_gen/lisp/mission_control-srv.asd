@@ -4,6 +4,8 @@
 (defsystem "mission_control-srv"
   :depends-on (:roslisp-msg-protocol :roslisp-utils )
   :components ((:file "_package")
+    (:file "motionControlStatus" :depends-on ("_package_motionControlStatus"))
+    (:file "_package_motionControlStatus" :depends-on ("_package"))
     (:file "generatePlan" :depends-on ("_package_generatePlan"))
     (:file "_package_generatePlan" :depends-on ("_package"))
     (:file "executePlan" :depends-on ("_package_executePlan"))

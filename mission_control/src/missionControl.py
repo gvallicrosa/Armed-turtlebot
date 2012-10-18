@@ -23,9 +23,6 @@ def exit_banner():
     print(font.red + "===================================================================" +
           font.normal +'\n')
 
-def systemCheck():
-    rospy.loginfo("Starting 'system check'...")
-
 def requestService(service):
     serviceName = service.__name__    
     status = 0
@@ -41,7 +38,13 @@ def requestService(service):
         rospy.loginfo("Request for '" + serviceName + "' was successful.")
     else:
         rospy.loginfo("Request for '" + serviceName + "' was unsuccessful.")
+    return reply
 
+def systemCheck():
+    rospy.loginfo("Starting 'system check'...")
+    statuses = [motionControlStatus]
+    for status in statuses:
+        requestService(status)
 
 ###############################################################################
 
