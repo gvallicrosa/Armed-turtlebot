@@ -1,0 +1,17 @@
+<package>
+  <description brief="mission_control">
+
+     mission_control
+
+  </description>
+  <author>user</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/mission_control</url>
+  <depend package="rospy"/>
+  <depend package="roslib"/>
+  <depend package="std_msgs"/>
+  <depend package="geometry_msgs"/>
+</package>
+
+
