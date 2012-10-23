@@ -12,6 +12,7 @@
   <depend package="rospy"/>
   <depend package="roscpp"/>
   <depend package="dynamixel_msgs"/>
+  <depend package="tf"/>
 
 
 </package>

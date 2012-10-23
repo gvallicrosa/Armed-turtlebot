@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #from __future__ import division
 
 # Basics
@@ -11,6 +12,7 @@ from std_msgs.msg import Float64, Bool, Float64MultiArray
 from dynamixel_msgs.msg import JointState, MotorStateList
 from smart_arm_node.msg import Float64List
 from smart_arm_node.srv import SmartArmService, SmartArmServiceResponse
+import tf
 
 # Maths
 from numpy import pi, arctan2, cos, sin, array, sqrt, arccos, eye, array, dot, zeros
@@ -56,6 +58,19 @@ def ask_server(req):
 
 
 ################################################################################
+def angle_wrap(a):
+    '''
+    Retruns the angle a normalized between -pi and pi
+    '''
+    if a > pi :
+        a -= 2*pi
+    elif a < -pi :    
+        a += 2*pi
+    return a
+    
+    
+    
+################################################################################
 def check_j1(msg):
     check_joint(1,msg)
 def check_j2(msg):
@@ -79,6 +94,19 @@ def check_joint(i,msg):
     joints_move[i-1] = msg.is_moving
     joints_load[i-1] = abs(msg.load) > 0.8
     joints_curr[i-1] = msg.current_pos
+    
+    # Publish transformations for the joints (1-4), not the hand (5)
+    if i < 5:
+        # Get transformation between the joint and previous joint
+        parent = "joint%s" % str(i-1)
+        child  = "joint%s" % str(i)
+        trans  = arm.links[i-1].tr(joints_curr[i-1])
+        # Broadcast tf [translation (x,y,z), rotation (x,y,z,w), time, child, parent]
+        tfbr.sendTransform(tf.transformations.translation_from_matrix(trans),
+                           tf.transformations.quaternion_from_matrix(trans),
+                           rospy.Time.now(),
+                           child,
+                           parent)
     
     if joints_load[i-1] and i==5:
         print 'Too much load on joint %s\nStopping joint...' % i
@@ -140,7 +168,7 @@ class Link(object):
         Returns the forward kinematics matrix of the link at the especified
         theta (q) value.
         '''
-        q = q-self.offset    # correct offset
+        q = q + self.offset    # correct offset
         sa = sin(self.alpha)
         ca = cos(self.alpha)
         st = sin(q)
@@ -158,7 +186,7 @@ class Link(object):
 ################################################################################ 
 class Arm(object):
     '''
-    Class to handle the whole arm of the robot with forward kinemtics and
+    Class to handle the whole arm of the robot with forward kinematics and
     inverse kinematics.
     '''
     
@@ -173,38 +201,83 @@ class Arm(object):
     
     def fkine(self,qs):
         '''
-        Returns the forward kinematics matrix of the whole arm by specifying
-        a list of joint positions.
+        Returns the forward kinematics matrix for all joints
         '''
-        assert len(qs)==4
+        assert len(qs)>=4
         val = eye(4)
         for i in range(4):
             val = dot(val, self.links[i].tr(qs[i]))
         return val
-        
+
+
         
     def ikine(self,xyz):
         '''
         Returns the inverse kinematics (list of joint positions) to achieve a
         (x,y,z) position on the end effector.
         '''
-        x,y,z = xyz
-        ipdb.set_trace()
-        limits = self.limits
-        dummy = (z - d1)**2 + (sqrt(x**2 + y**2) - a1**2)
+        # Input/output variables
+        x,y,z = xyz          # goal position
+        sols = zeros((4,5))  # 4 solutions obtained with IK
+        
+        # Inverse kinematics
+        ## Joint 1
         q1 = arctan2(y,x)
-        q2 = 1
-        q3 = arccos( - (dummy - a2**2 - d4**2) / (2*a2*d4) ) # two solutions (q2, 2pi-q2)
-        q4 = 0
-        # q2 in limits
-        if True:
-            q2 = 1
-        # q2 not in limits
-        else:
-            q3 = 2*pi - q3
-            q2 = 1
-        # if more than one solution, take the nearest to curent one
-        return [q1,q2,q3,q4]
+        sols[0,0] = q1
+        sols[1,0] = q1
+        sols[2,0] = q1 + pi
+        sols[3,0] = q1 + pi
+        
+        ## Joints 2&3 when q1
+        e = sqrt(x**2 + y**2)
+        f = sqrt((e-a1)**2 + (d1-z)**2)
+        g = sqrt(d4**2 + a3**2)
+        h = arctan2(d1-z,f)
+        q3 = arccos((f**2 - a2**2 - g**2)/(2*a2*g))
+        sols[0,2] = q3
+        sols[0,1] = arctan2(g*sin(q3), a2+g*cos(q3)) + h
+        q3 = 2*pi - q3
+        sols[1,2] = q3
+        sols[1,1] = arctan2(g*sin(q3), a2+g*cos(q3)) + h
+        
+        ## Joints 2&3 when q1+pi
+        f = sqrt((e+a1)**2 + (d1-z)**2)
+        h = arctan2(d1-z,f)
+        q3 = arccos((f**2 - a2**2 - g**2)/(2*a2*g))
+        sols[2,2] = q3
+        sols[2,1] = pi - (arctan2(g*sin(q3), a2+g*cos(q3)) + h)
+        q3 = 2*pi - q3
+        sols[3,2] = q3
+        sols[3,1] = pi - (arctan2(g*sin(q3), a2+g*cos(q3)) + h)
+        
+        # Check solutions
+        print 'Target: %s, %s, %s' % (x,y,z)
+        for i in range(4):        # for all solutions
+        
+            ## Check solution with joint limits
+            for j in range(4):    # for all joints
+                sols[i,j] = angle_wrap(sols[i,j])
+                if not( min(qlims[j,:]) <= sols[i,j] <= max(qlims[j,:]) ):
+                    sols[i,4] = 1 # no valid solution
+                    break
+                    
+            ## Check solution with FK
+            trans = self.fkine(sols[i,:4])[:3,3]
+            if sqrt( sum( ( trans-array([x,y,z]) )**2 ) ) > 0.01: 
+                sols[i,4] = 1     # no valid solution
+            
+            ## Some output   
+            print 'Solution %s: ' % i, trans
+            print 'Rejected: ', sols[i,4]
+            print 'Error: ', sqrt( sum( ( trans-array([x,y,z]) )**2 ) )
+            print 'Joints: ', sols[i,0:4], '\n'
+        
+        print 'found %s solutions' % sum(sols[:,4]==0)
+        
+        # If more than one solution, take the nearest to curent one
+        ipdb.set_trace()
+        #TODO: check offset interaction here!!!!
+        return 1
     
     
     
@@ -212,6 +285,7 @@ class Arm(object):
         """
         Grabs or ungrabs depending on the joint state.
         """
+        # TODO: check better the movement
         # Check condition
         if abs(joints_curr[4]-qlims[4,0]) < 0.1 and auto:
             val = +1 # close
@@ -220,9 +294,8 @@ class Arm(object):
             
         # Publish to controller
         pub_move[4].publish(Float64(val))
-        print 'published = ',val
             
-        # Wait until finish movement
+        # Wait until movement end
         while sum(joints_move) > 0:
             sleep(0.1)
             
@@ -234,8 +307,7 @@ class Arm(object):
         '''
         Moves the arm to the specified joint positions.
         '''
-        assert isinstance(qs,list)
-        assert len(qs) == 4
+        assert len(qs) >= 4
         
         # Send movement commands to the smart_arm_controller (not the hand)
         for i in range(4):
@@ -258,6 +330,19 @@ class Arm(object):
         '''
         Moves the specified joint "i" to the specified position "q".
         '''
+        assert i<5
+        pub_move[i-1].publish(Float64(qs))
+        
+        # Wait until finish movement
+        while sum(joints_move) > 0:
+            sleep(0.1)
+        
+        # Check if the goal is reached
+        cond = abs( array(joints_curr[:4]) - array(qs) ) < 0.05
+        if sum(cond) == 4:
+            return 1
+        else:
+            return 0
         
         
         
@@ -268,6 +353,36 @@ class Arm(object):
         '''
         qs = self.ikine(xyz)
         return self.move_all(qs)
+        
+        
+        
+    def tf(self,i,q=0,pub=False):
+        '''
+        Gets the transformation from one joint. Also publishes the
+        transformation if it is specified.
+        '''
+        trans = self.links[i-1].tr(q)
+        
+        if pub:
+            parent = "joint%s" % str(i-1)
+            child  = "joint%s" % str(i)
+            # Broadcast tf [translation (x,y,z), rotation (x,y,z,w), time, child, parent]
+            tfbr.sendTransform(tf.transformations.translation_from_matrix(trans),
+                               tf.transformations.quaternion_from_matrix(trans),
+                               rospy.Time.now(),
+                               child,
+                               parent)
+        return trans
+
+
+
+    def tf_all(self,qs):
+        '''
+        Publishes the transformations for all joints.
+        '''
+        for i in range(4):
+            self.tr(i+1,qs[i],True)
+        return 1
 
 
 
@@ -308,6 +423,9 @@ if __name__ == '__main__':
     stat_j4 = rospy.Subscriber('/wrist_roll_controller/state',     JointState, check_j4)
     stat_j5 = rospy.Subscriber('/right_finger_controller/state',   JointState, check_j5)
     
+    # Transform broadcaster
+    tfbr = tf.TransformBroadcaster()
+    
     # Services
     srv_values = rospy.Service('get_arm_srv', SmartArmService, ask_server)
 
@@ -320,25 +438,29 @@ if __name__ == '__main__':
         qlims = array([[-1.22207136,1.22207136],[-1.04822021,1.97372195],[-1.88679637,1.97372195],
                        [-2.61288061,2.61799388],[-0.24032366,0.84368943]])
                        
-    # Sizes obtained with DH method TODO: check measures
-    a1 = 0.06
-    a2 = 0.175
+    # Sizes obtained with DH method
+    a1 = 0.051
+    a2 = 0.174
+    a3 = 0.023
     d1 = 0.14
-    d4 = 0.12
+    d4 = 0.16
 
     # Link creation
+    ## Design parameters
     links = list()
-    links.append( Link(   0,  d1, a1, -pi/2,     0) )
-    links.append( Link(   0,   0, a2,    pi, -pi/4) ) # offset=-45
-    links.append( Link(pi/2,   0,  0, -pi/2,     0) )
-    links.append( Link(   0, -d4,  0,    pi,     0) )
-
+    links.append( Link(    0,  d1, a1, -pi/2,     0) )
+    links.append( Link(    0,   0, a2,    pi,     0) ) # offset=-45
+    links.append( Link(-pi/2,   0, a3,  pi/2, -pi/2) )
+    links.append( Link(   pi, -d4,  0,    pi,    pi) )
+    ## Real parameters (offset of the real motors)
+    
     # Robot creation
     arm = Arm(links)
 
     # Forward kinematics
     print '# Forward kinematics test:\n', arm.fkine([0,0,0,0]), '\n'
-    #print arm.ikine(0.1,0.1,0.1)
+    print '# Inverse kinematics test:\n', arm.ikine([a1+a2+d4,0,d1-a3])
+    ipdb.set_trace()
         
     # Continue execution forever
     rospy.spin()

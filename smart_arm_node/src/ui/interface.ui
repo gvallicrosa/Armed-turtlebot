@@ -6,28 +6,83 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>683</width>
-    <height>372</height>
+    <width>700</width>
+    <height>410</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>683</width>
-    <height>372</height>
+    <width>700</width>
+    <height>410</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>683</width>
-    <height>372</height>
+    <width>700</width>
+    <height>410</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Smart Arm Controller Interface</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_7">
+  <layout class="QVBoxLayout" name="verticalLayout_9">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_9">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>j1:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QDoubleSpinBox" name="spinj1"/>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>j3:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="3">
+          <widget class="QDoubleSpinBox" name="spinj3"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>j2:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QDoubleSpinBox" name="spinj2"/>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>j4:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QDoubleSpinBox" name="spinj4"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="movejoints">
+         <property name="text">
+          <string>Move joints</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
      <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
@@ -38,8 +93,8 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>400</width>
-         <height>20</height>
+         <width>58</width>
+         <height>86</height>
         </size>
        </property>
       </spacer>
@@ -332,9 +387,9 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>
         <spacer name="verticalSpacer_4">
          <property name="orientation">
@@ -484,7 +539,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>40</height>
+           <height>17</height>
           </size>
          </property>
         </spacer>
@@ -632,20 +687,63 @@
       </layout>
      </item>
      <item>
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string/>
-       </property>
-       <property name="pixmap">
-        <pixmap resource="interface.qrc">:/all/schematic.svg</pixmap>
-       </property>
-       <property name="scaledContents">
-        <bool>false</bool>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap resource="interface.qrc">:/all/schematic.svg</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="stat_j1">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="stat_j2">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="stat_j3">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="stat_j4">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="stat_j5">
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout_6">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
@@ -688,12 +786,77 @@
          </property>
         </spacer>
        </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="stat_j5_2">
+           <property name="text">
+            <string>X:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QDoubleSpinBox" name="spinx"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="stat_j5_3">
+           <property name="text">
+            <string>Y:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QDoubleSpinBox" name="spiny"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="stat_j5_4">
+           <property name="text">
+            <string>Z:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QDoubleSpinBox" name="spinz"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="movexyz">
+         <property name="text">
+          <string>Move xyz</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
     </layout>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>spinj1</tabstop>
+  <tabstop>spinj2</tabstop>
+  <tabstop>spinj3</tabstop>
+  <tabstop>spinj4</tabstop>
+  <tabstop>movejoints</tabstop>
+  <tabstop>spinx</tabstop>
+  <tabstop>spiny</tabstop>
+  <tabstop>spinz</tabstop>
+  <tabstop>movexyz</tabstop>
+  <tabstop>pushButton_j1min</tabstop>
+  <tabstop>pushButton_j1plus</tabstop>
+  <tabstop>pushButton_j2min</tabstop>
+  <tabstop>pushButton_j2plus</tabstop>
+  <tabstop>pushButton_j3min</tabstop>
+  <tabstop>pushButton_j3plus</tabstop>
+  <tabstop>pushButton_j4min</tabstop>
+  <tabstop>pushButton_j4plus</tabstop>
+  <tabstop>pushButton_grab</tabstop>
+  <tabstop>slider_j1</tabstop>
+  <tabstop>slider_j2</tabstop>
+  <tabstop>slider_j3</tabstop>
+  <tabstop>slider_j4</tabstop>
+ </tabstops>
  <resources>
   <include location="interface.qrc"/>
   <include location="interface.qrc"/>

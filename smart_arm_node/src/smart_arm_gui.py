@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import ipdb
 
 # Qt basics
@@ -12,7 +13,7 @@ import rospy
 
 # Messages and services
 from std_msgs.msg import Float64
-from smart_arm_node.srv import SmartArmService, SmartArmServiceRequest
+from smart_arm_node.srv import SmartArmService
 
 # Math
 from numpy import array
@@ -40,16 +41,10 @@ def from_arm_server(kind,data=[0,]):
     rospy.wait_for_service('get_arm_srv')
     try:
         use_service = rospy.ServiceProxy('get_arm_srv', SmartArmService)
-        print '============='
-        print kind
-        print data
-#        ipdb.set_trace()
         resp = use_service(kind,data)
-        print '-------------'
-        print resp.values
         return array(resp.values)
     except rospy.ServiceException, e:
-        print "Service call failed: %s"%e
+        print "Service call failed: %s" % e
     
     
     
