@@ -27,25 +27,30 @@ def ask_server(req):
     """
     Accepts external requests about status and movements, depending on the
     'req.what' value.
-        1 : joint status
-        2 : move the four first joints to desired joint angles
-        3 : move the four first joints to desired (x,y,z) using IK solver
-        4 : grab/ungrab with the hand
+          0 : joint status
+        1-5 : move a single joint
+          6 : move the four first joints to desired joint angles
+          7 : move the four first joints to desired (x,y,z) using IK solver
+          8 : grab/ungrab with the hand
     Data should be provided for some of the requests.
     A response according to what is accomplished is retured.
     """
-    if req.what == 1:
+    if req.what == 0:
         # joint status
         ans = list(joints_curr)
-    elif req.what == 2:
+    elif req.what in range(1,6):
+        # move specified joint
+#        ipdb.set_trace()
+        ans = [arm.move_joint(req.what,req.data[0]),]
+    elif req.what == 6:
         # move radians
         qs = list(req.data)
         ans = [arm.move_all(qs),]
-    elif req.what == 3:
+    elif req.what == 7:
         # move xyz
         xyz = list(req.data)
         ans = [arm.move_xyz(xyz),]
-    elif req.what == 4:
+    elif req.what == 8:
         # grab/ungrab
         ans = [arm.grab(),]
     else:
@@ -221,63 +226,89 @@ class Arm(object):
         sols = zeros((4,5))  # 4 solutions obtained with IK
         
         # Inverse kinematics
-        ## Joint 1
-        q1 = arctan2(y,x)
-        sols[0,0] = q1
-        sols[1,0] = q1
-        sols[2,0] = q1 + pi
-        sols[3,0] = q1 + pi
-        
-        ## Joints 2&3 when q1
+        ## Solution 1
+        ### Aux
         e = sqrt(x**2 + y**2)
         f = sqrt((e-a1)**2 + (d1-z)**2)
         g = sqrt(d4**2 + a3**2)
-        h = arctan2(d1-z,f)
-        q3 = arccos((f**2 - a2**2 - g**2)/(2*a2*g))
+        h = arctan2(d1-z,e-a1)
+        i = arctan2(a3,d4)
+        j = arccos(-(f**2 - a2**2 - g**2)/(2*a2*g)) # always [0,pi]
+        k = arctan2(g*sin(pi-j), a2+g*cos(pi-j))
+        ### Joints
+        q1 = arctan2(y,x)
+        q2 = h + k
+        q3 = pi - j + i
+        sols[0,0] = q1
+        sols[0,1] = q2
         sols[0,2] = q3
-        sols[0,1] = arctan2(g*sin(q3), a2+g*cos(q3)) + h
-        q3 = 2*pi - q3
-        sols[1,2] = q3
-        sols[1,1] = arctan2(g*sin(q3), a2+g*cos(q3)) + h
         
-        ## Joints 2&3 when q1+pi
+        ## Solution 2
+        q1 = arctan2(y,x)
+        q2 = -(k - h)
+        q3 = -(pi-j) + i
+        sols[1,0] = q1
+        sols[1,1] = q2
+        sols[1,2] = q3
+        
+        ## Solution 3
+        ### Aux
+        e = sqrt(x**2 + y**2)
         f = sqrt((e+a1)**2 + (d1-z)**2)
-        h = arctan2(d1-z,f)
-        q3 = arccos((f**2 - a2**2 - g**2)/(2*a2*g))
+        g = sqrt(d4**2 + a3**2)
+        h = arctan2(d1-z,e+a1)
+        i = arctan2(a3,d4)
+        j = arccos(-(f**2 - a2**2 - g**2)/(2*a2*g)) # always [0,pi]
+        k = arctan2(g*sin(pi-j), a2+g*cos(pi-j))
+        ### Joints
+        q1 = arctan2(y,x) + pi
+        q2 = pi - h - k
+        q3 = -(pi - j - i)
+        sols[2,0] = q1
+        sols[2,1] = q2
         sols[2,2] = q3
-        sols[2,1] = pi - (arctan2(g*sin(q3), a2+g*cos(q3)) + h)
-        q3 = 2*pi - q3
+        
+        ## Solution 4
+        q1 = arctan2(y,x) + pi
+        q2 = pi + k - h
+        q3 = pi - j + i
+        sols[3,0] = q1
+        sols[3,1] = q2
         sols[3,2] = q3
-        sols[3,1] = pi - (arctan2(g*sin(q3), a2+g*cos(q3)) + h)
         
         # Check solutions
         print 'Target: %s, %s, %s' % (x,y,z)
         for i in range(4):        # for all solutions
         
+            ## Check solution with FK
+            trans = self.fkine(sols[i,:4])[:3,3]
+            err = sqrt( sum( ( trans-array([x,y,z]) )**2 ) )
+            if err > 0.01: 
+                sols[i,4] = 1     # no valid solution
+                
+            ## Some output   
+            print 'Solution %s: ' % i, trans
+            print 'Error: ', sqrt( sum( ( trans-array([x,y,z]) )**2 ) )
+            print 'Joints: ', sols[i,0:4]
+                
             ## Check solution with joint limits
             for j in range(4):    # for all joints
                 sols[i,j] = angle_wrap(sols[i,j])
                 if not( min(qlims[j,:]) <= sols[i,j] <= max(qlims[j,:]) ):
                     sols[i,4] = 1 # no valid solution
+                    print "Not in joint limits"
                     break
-                    
-            ## Check solution with FK
-            trans = self.fkine(sols[i,:4])[:3,3]
-            if sqrt( sum( ( trans-array([x,y,z]) )**2 ) ) > 0.01: 
-                sols[i,4] = 1     # no valid solution
-            
-            ## Some output   
-            print 'Solution %s: ' % i, trans
-            print 'Rejected: ', sols[i,4]
-            print 'Error: ', sqrt( sum( ( trans-array([x,y,z]) )**2 ) )
-            print 'Joints: ', sols[i,0:4], '\n'
         
         print 'found %s solutions' % sum(sols[:,4]==0)
         
         # If more than one solution, take the nearest to curent one
+        valid = list()
+        for i in range(4):
+            if sols[i,4] == 0:
+                valid.append(sols[i,:4])
         ipdb.set_trace()
         #TODO: check offset interaction here!!!!
-        return 1
+        return valid[0]
     
     
     
@@ -326,19 +357,19 @@ class Arm(object):
             
             
             
-    def move_joint(i,q):
+    def move_joint(self,i,q):
         '''
         Moves the specified joint "i" to the specified position "q".
         '''
         assert i<5
-        pub_move[i-1].publish(Float64(qs))
+        pub_move[i-1].publish(Float64(q))
         
         # Wait until finish movement
         while sum(joints_move) > 0:
             sleep(0.1)
         
         # Check if the goal is reached
-        cond = abs( array(joints_curr[:4]) - array(qs) ) < 0.05
+        cond = abs( array(joints_curr[:4]) - array(q) ) < 0.05
         if sum(cond) == 4:
             return 1
         else:
@@ -381,7 +412,7 @@ class Arm(object):
         Publishes the transformations for all joints.
         '''
         for i in range(4):
-            self.tr(i+1,qs[i],True)
+            self.tf(i+1,qs[i],True)
         return 1
 
 
@@ -460,7 +491,8 @@ if __name__ == '__main__':
     # Forward kinematics
     print '# Forward kinematics test:\n', arm.fkine([0,0,0,0]), '\n'
     print '# Inverse kinematics test:\n', arm.ikine([a1+a2+d4,0,d1-a3])
-    ipdb.set_trace()
+#    print '# Inverse kinematics test:\n', arm.ikine([0.2,0,d1-a3])
+#    ipdb.set_trace()
         
     # Continue execution forever
     rospy.spin()

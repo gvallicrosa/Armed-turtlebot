@@ -60,13 +60,17 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         
         # Variables
         self.grabbing = False
-        joints_curr = from_arm_server(1) # request joint status
+        joints_curr = from_arm_server(0) # request joint status
         print joints_curr
         
         # Set current position of sliders
         self.sliders = [self.slider_j1,self.slider_j2,self.slider_j3,self.slider_j4]
         for i in range(4):
             self.sliders[i].setSliderPosition(get_spos(i,joints_curr[i]))
+            
+        # Status labels
+        self.labels = [self.stat_j1,self.stat_j2,self.stat_j3,self.stat_j4,self.stat_j5]
+        self.refresh_joints()
         
         # Connections
         ## Minus buttons
@@ -81,6 +85,10 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         self.connect(self.pushButton_j4plus, QtCore.SIGNAL("pressed()"), self.update_j4plus)
         ## Grab button
         self.connect(self.pushButton_grab,   QtCore.SIGNAL("pressed()"), self.update_grab)
+        ## Move joints button
+        self.connect(self.pushButton_mjnts,  QtCore.SIGNAL("pressed()"), self.update_mjnts)
+        ## Move xyz button
+        self.connect(self.pushButton_xyz,    QtCore.SIGNAL("pressed()"), self.update_xyz)
         
         
         
@@ -89,7 +97,8 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         Called when grab button is pressed. Calls the smart_arm_server for
         grab/ungrab with the hand.
         """
-        from_arm_server(4) # request grab
+        from_arm_server(8) # request grab
+        self.refresh_joints()
 
         
     
@@ -97,14 +106,57 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         """
         Called when a joint position is changed. Sends the commands to the arm.
         """
-        joints_curr = from_arm_server(1) # request joint status
+        #joints_curr = from_arm_server(0) # request joint status
         if plus:
-            joints_curr[i] += 0.1
+            joints_curr[i] += self.increment_spin.value()
         else:
-            joints_curr[i] -= 0.1
-        self.sliders[i].setSliderPosition(get_spos(i,joints_curr[i])) # update slider
-        joints_curr = from_arm_server(2,joints_curr[:4]) # request joint movement
-        # TODO: should check joint status to update, real positions       
+            joints_curr[i] -= self.increment_spin.value()
+        
+        print joints_curr
+        from_arm_server(i+1,[joints_curr[i],]) # request joint movement
+        self.refresh_joints()
+        # TODO: should check joint status to update, real positions  
+        
+        
+        
+    def refresh_joints(self):
+        """
+        Refreshes sliders and labels status.
+        """
+        joints_curr = from_arm_server(0) # request joint status
+        for i in range(5):
+            if i < 4:
+                self.sliders[i].setSliderPosition(get_spos(i,joints_curr[i])) # update slider
+            text = "%1.4f" % joints_curr[i]
+            self.labels[i].setText(text) # update labels
+            
+        
+        
+        
+    def update_mjnts(self):
+        """
+        Called to move all joints at the same time.
+        """
+        goal = list()
+        goal.append(self.spinj1.value())
+        goal.append(self.spinj2.value())
+        goal.append(self.spinj3.value())
+        goal.append(self.spinj4.value())
+        from_arm_server(6,goal)
+        self.refresh_joints()
+    
+    
+    
+    def update_xyz(self):
+        """
+        Called to move to an xyz position.
+        """
+        goal = list()
+        goal.append(self.spinx.value())
+        goal.append(self.spiny.value())
+        goal.append(self.spinz.value())
+        from_arm_server(7,goal)
+        self.refresh_joints()
         
         
         
@@ -150,6 +202,8 @@ if __name__ == "__main__":
     
     # QT
     app = QtGui.QApplication(sys.argv)
+    app.setApplicationName("Smart Arm Controller Interface") # Need to save settings
+    app.setOrganizationName("Smart Arm Controller Interface") # Need to save settings
     form = interfaceDialog()
     form.show()
     app.exec_()
