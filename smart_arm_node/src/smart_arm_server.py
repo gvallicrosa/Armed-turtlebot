@@ -40,7 +40,6 @@ def ask_server(req):
         ans = list(joints_curr)
     elif req.what in range(1,6):
         # move specified joint
-#        ipdb.set_trace()
         ans = [arm.move_joint(req.what,req.data[0]),]
     elif req.what == 6:
         # move radians
@@ -65,7 +64,8 @@ def ask_server(req):
 ################################################################################
 def angle_wrap(a):
     '''
-    Retruns the angle a normalized between -pi and pi
+    Retruns the angle a normalized between -pi and pi. Values acceptable by the
+    motor controllers.
     '''
     if a > pi :
         a -= 2*pi
@@ -95,24 +95,25 @@ def check_joint(i,msg):
     Checks if a joint is still moving and also if the torque is too big and the
     movement should be stopped.
     '''
-
-    joints_move[i-1] = msg.is_moving
-    joints_load[i-1] = abs(msg.load) > 0.8
-    joints_curr[i-1] = msg.current_pos
+    # Global variables for storage
+    joints_move[i-1] = msg.is_moving       # joint moving?
+    joints_load[i-1] = abs(msg.load) > 0.8 # joint overloaded?
+    joints_curr[i-1] = msg.current_pos     # current position
     
-    # Publish transformations for the joints (1-4), not the hand (5)
+    # Publish transformations for RViz of the joints (1-4), not the hand (5)
     if i < 5:
         # Get transformation between the joint and previous joint
         parent = "joint%s" % str(i-1)
         child  = "joint%s" % str(i)
-        trans  = arm.links[i-1].tr(joints_curr[i-1])
-        # Broadcast tf [translation (x,y,z), rotation (x,y,z,w), time, child, parent]
+        trans  = arm.links[i-1].tr(joints_curr[i-1],True)
+        # Broadcast tf [translation(x,y,z), rotation(x,y,z,w), time, child, parent]
         tfbr.sendTransform(tf.transformations.translation_from_matrix(trans),
                            tf.transformations.quaternion_from_matrix(trans),
                            rospy.Time.now(),
                            child,
                            parent)
     
+    # Check joint for overload (only hand)
     if joints_load[i-1] and i==5:
         print 'Too much load on joint %s\nStopping joint...' % i
         print 'Load = ', msg.load
@@ -153,27 +154,33 @@ class Link(object):
     Class to handle revoution links defined with DH method.
     '''
     
-    def __init__(self,theta,d,a,alpha,offset):
+    def __init__(self,theta,d,a,alpha,offset,real):
         '''
         Constructor of the class link.
         theta,d,a,alpha : defined by DH method.
         offset          : difference between the real zero of the joint motors
                           and the theoric zero.
+        real            : real offset in the real motors respect to the design
+                          positions
         '''
         self.theta = theta
         self.d = d
         self.a = a
         self.alpha = alpha
         self.offset = offset
+        self.real = real
         
         
         
-    def tr(self,q=0):
+    def tr(self,q=0,real=False):
         '''
         Returns the forward kinematics matrix of the link at the especified
-        theta (q) value.
+        theta (q) value. If real is specified, the real motor offsets are taken
+        into account.
         '''
-        q = q + self.offset    # correct offset
+        q += self.offset # correct offset
+        if real:
+            q -= self.real    
         sa = sin(self.alpha)
         ca = cos(self.alpha)
         st = sin(q)
@@ -338,22 +345,11 @@ class Arm(object):
         '''
         Moves the arm to the specified joint positions.
         '''
-        assert len(qs) >= 4
-        
-        # Send movement commands to the smart_arm_controller (not the hand)
+        # Send movement commands to the smart_arm_controller one by one
+        ans = list()
         for i in range(4):
-            pub_move[i].publish(Float64(qs[i]))
-            
-        # Wait until finish movement
-        while sum(joints_move) > 0:
-            sleep(0.1)
-        
-        # Check if the goal is reached
-        cond = abs( array(joints_curr[:4]) - array(qs) ) < 0.05
-        if sum(cond) == 4:
-            return 1
-        else:
-            return 0
+            ans.append(self.move_joint(i+1,qs[i]))
+        return ans
             
             
             
@@ -361,12 +357,13 @@ class Arm(object):
         '''
         Moves the specified joint "i" to the specified position "q".
         '''
-        assert i<5
-        pub_move[i-1].publish(Float64(q))
+        # Publish the movement to the joint
+        pub_move[i-1].publish(Float64(q+self.links[i-1].real))
         
         # Wait until finish movement
         while sum(joints_move) > 0:
             sleep(0.1)
+        print "Movement end"
         
         # Check if the goal is reached
         cond = abs( array(joints_curr[:4]) - array(q) ) < 0.05
@@ -413,7 +410,6 @@ class Arm(object):
         '''
         for i in range(4):
             self.tf(i+1,qs[i],True)
-        return 1
 
 
 
@@ -474,15 +470,18 @@ if __name__ == '__main__':
     a2 = 0.174
     a3 = 0.023
     d1 = 0.14
-    d4 = 0.16
+    d4 = 0.2#0.16
+    off2 = +0.680064816
+    off3 = -0.071585770
+    off4 = +0.035792885
 
     # Link creation
     ## Design parameters
     links = list()
-    links.append( Link(    0,  d1, a1, -pi/2,     0) )
-    links.append( Link(    0,   0, a2,    pi,     0) ) # offset=-45
-    links.append( Link(-pi/2,   0, a3,  pi/2, -pi/2) )
-    links.append( Link(   pi, -d4,  0,    pi,    pi) )
+    links.append( Link(    0,  d1, a1, -pi/2,     0,    0) )
+    links.append( Link(    0,   0, a2,    pi,     0, off2) ) # offset=-45
+    links.append( Link(-pi/2,   0, a3,  pi/2, -pi/2, off3) )
+    links.append( Link(   pi, -d4,  0,    pi,    pi, off4) )
     ## Real parameters (offset of the real motors)
     
     # Robot creation
@@ -490,7 +489,7 @@ if __name__ == '__main__':
 
     # Forward kinematics
     print '# Forward kinematics test:\n', arm.fkine([0,0,0,0]), '\n'
-    print '# Inverse kinematics test:\n', arm.ikine([a1+a2+d4,0,d1-a3])
+#    print '# Inverse kinematics test:\n', arm.ikine([a1+a2+d4,0,d1-a3])
 #    print '# Inverse kinematics test:\n', arm.ikine([0.2,0,d1-a3])
 #    ipdb.set_trace()
         

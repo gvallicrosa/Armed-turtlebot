@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'interface.ui'
 #
-# Created: Mon Oct 29 16:02:31 2012
+# Created: Mon Oct 29 16:55:48 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -331,18 +331,27 @@ class Ui_Dialog(object):
         self.stat_j5_2.setObjectName(_fromUtf8("stat_j5_2"))
         self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.stat_j5_2)
         self.spinx = QtGui.QDoubleSpinBox(Dialog)
+        self.spinx.setMinimum(-0.5)
+        self.spinx.setMaximum(0.5)
+        self.spinx.setSingleStep(0.1)
         self.spinx.setObjectName(_fromUtf8("spinx"))
         self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.spinx)
         self.stat_j5_3 = QtGui.QLabel(Dialog)
         self.stat_j5_3.setObjectName(_fromUtf8("stat_j5_3"))
         self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.stat_j5_3)
         self.spiny = QtGui.QDoubleSpinBox(Dialog)
+        self.spiny.setMinimum(-0.5)
+        self.spiny.setMaximum(0.5)
+        self.spiny.setSingleStep(0.1)
         self.spiny.setObjectName(_fromUtf8("spiny"))
         self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.spiny)
         self.stat_j5_4 = QtGui.QLabel(Dialog)
         self.stat_j5_4.setObjectName(_fromUtf8("stat_j5_4"))
         self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.stat_j5_4)
         self.spinz = QtGui.QDoubleSpinBox(Dialog)
+        self.spinz.setMinimum(-0.5)
+        self.spinz.setMaximum(0.5)
+        self.spinz.setSingleStep(0.1)
         self.spinz.setObjectName(_fromUtf8("spinz"))
         self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.spinz)
         self.verticalLayout_3.addLayout(self.formLayout)
