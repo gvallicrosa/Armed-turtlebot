@@ -52,6 +52,9 @@ class missionControl:
         # Load the mission from a file.
         self.m.load("mission.txt")
 
+        # Run the first task
+        self.m.StartNextTask()
+
         # Get the number of tasks in the mission.
         # NOTE - this is not yet implemente din the 'mission' class.
         #n = self.m.getNumTasks()

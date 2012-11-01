@@ -23,7 +23,7 @@ class mission:
 
     def __init__(self):
         self.currentTask = 0  # Keep track of how many tasks have completed.
-        self.totalTasks = 0  # Keep track of how many tasks there are in the mission.
+        self.taskCounter = 0  # Keep track of how many tasks there are in the mission.
         self.exitStatus = 0  # Keep track of how the last task exited.
 
         # Think of some way to populate the task dictionary using
@@ -36,7 +36,7 @@ class mission:
         self.getTasks()
 
         # Mission arry / task list
-        self.mission = []
+        self.mission = {}
 
         ### Setup a parser to read the text file for the load() function.
         self.config = ConfigParser.ConfigParser()
@@ -63,15 +63,18 @@ class mission:
         and generate the mission using the python parser class
         and a dictionary of 'taskName: class' pairs.
         """
+        print "* Reading mission file '" + str(filename) + "' ..."
         self.config.read(filename)
-        sections = self.onfig.sections()
+        sections = self.config.sections()
 
         # Get the 'name' variable from each section
         # this corresponds to the task name.
+        print("* Loading mission tasks ...")
         for section in sections:
-            taskName = Config.get(section, 'name')
-            self.mission += task_dictionary[taskName]
-            print("'" + str(taskName) + "' added to mission.")
+            taskName = self.config.get(section, 'name')
+            self.mission[self.taskCounter] = self.task_dictionary[taskName]
+            print("** Task " + str(self.taskCounter) + " '" + str(taskName) + "' added to mission.")
+            self.taskCounter += 1
 
     def reset(self):
        """
@@ -105,4 +108,7 @@ class mission:
        Executes the next task.
        Increments the task counter on complete
        """
-       pass
+       task = self.mission[self.currentTask]()
+       print("Starting task " + str(self.currentTask) + " ...")
+       task.task()
+       self.currentTask += 1;

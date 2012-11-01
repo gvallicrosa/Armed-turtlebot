@@ -19,7 +19,7 @@ class systemCheck(task):
     def __init__(self):
         pass
 
-    def task(self, statusServices):
+    def task(self, statusServices=[]):
         """
         Make sure all nodes are up and running.
         'statusServices' is an array of service names to call.
