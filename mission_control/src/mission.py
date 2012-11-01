@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 # Python Libraries
+import ConfigParser
+import pkgutil
 
 # ROS Libraries
 import roslib
@@ -8,7 +10,7 @@ roslib.load_manifest('mission_control')
 import rospy
 
 # Mission Control Librariesi
-import task
+import tasks
 # from mission_control.srv import emergencyStop
 # from mission_control.srv import generatePlan
 # from mission_control.srv import executePlan
@@ -20,16 +22,32 @@ import task
 class mission:
 
     def __init__(self):
-        currentTask = 0  # Keep track of how many tasks have completed.
-        totalTasks = 0  # Keep track of how many tasks there are in the mission.
-        exitStatus = 0  # Keep track of how the last task exited.
+        self.currentTask = 0  # Keep track of how many tasks have completed.
+        self.totalTasks = 0  # Keep track of how many tasks there are in the mission.
+        self.exitStatus = 0  # Keep track of how the last task exited.
 
         # Think of some way to populate the task dictionary using
         # a scan of the 'task' package.
         # I.e. {class_name; class}
-        task_dictionary = {}
+        self.task_dictionary = {}
+
+        # Scan task package for task classes and populate
+        # the 'task_dictionary' dicitonary.
+        self.getTasks()
+
+        # Mission arry / task list
+        self.mission = []
 
         ### Setup a parser to read the text file for the load() function.
+        self.config = ConfigParser.ConfigParser()
+
+    def getTasks(self):
+        package = tasks
+        prefix = package.__name__ + "."
+        for importer, modname, ispkg in pkgutil.iter_modules(package.__path__, prefix):
+            task_module = __import__(modname, fromlist="dummy")
+            task_class = getattr(task_module, task_module.__name__.split('.')[-1])
+            self.task_dictionary[str(task_class.__name__)] = task_class
 
     def getExitStatus(self):
         """
@@ -45,7 +63,15 @@ class mission:
         and generate the mission using the python parser class
         and a dictionary of 'taskName: class' pairs.
         """
-        pass
+        self.config.read(filename)
+        sections = self.onfig.sections()
+
+        # Get the 'name' variable from each section
+        # this corresponds to the task name.
+        for section in sections:
+            taskName = Config.get(section, 'name')
+            self.mission += task_dictionary[taskName]
+            print("'" + str(taskName) + "' added to mission.")
 
     def reset(self):
        """
@@ -54,27 +80,27 @@ class mission:
        """
        pass
 
-   def remove(self, taskNumber):
+    def remove(self, taskNumber):
        """
        === Not essential ===
        Remove specific task from mission
        """
        pass
 
-   def insert(self, tasknNumber, taskName);
+    def insert(self, tasknNumber, taskName):
        """
        === Not essential ===
        Insert taskName after taskNumber
        """
        pass
 
-   def list(self):
+    def list(self):
        """
        Print an ordered list of the mission tasks
        """
        pass
 
-   def StartNextTask(self):
+    def StartNextTask(self):
        """
        Executes the next task.
        Increments the task counter on complete

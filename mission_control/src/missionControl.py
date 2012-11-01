@@ -5,14 +5,14 @@
 # ROS Libraries
 import roslib
 roslib.load_manifest('mission_control')
-import rospy
+#import rospy
 
 # Mission Control Libraries
 import font
-from mission_control.srv import emergencyStop
-from mission_control.srv import generatePlan
-from mission_control.srv import executePlan
-from smart_arm_node.srv import SmartArmService
+#from mission_control.srv import emergencyStop
+#from mission_control.srv import generatePlan
+#from mission_control.srv import executePlan
+#from smart_arm_node.srv import SmartArmService
 from mission import mission
 
 ###############################################################################
@@ -20,7 +20,7 @@ from mission import mission
 class missionControl:
 
     def __init__(self):
-        m = mission()
+        self.m = mission()
 
     def banner(self):
         """
@@ -50,19 +50,19 @@ class missionControl:
         self.banner()
 
         # Load the mission from a file.
-        self.m.load("myMission.txt")
+        self.m.load("mission.txt")
 
         # Get the number of tasks in the mission.
         # NOTE - this is not yet implemente din the 'mission' class.
-        n = self.m.getNumTasks()
+        #n = self.m.getNumTasks()
 
         # Loop until all tasks have been completed.
-        while(True)
-            self.m.RunNextTask()
-            x = self.GetExitStatus()
-            if( x == 1 ):
-                print 'Something bad happened'
-                # Do something about it...
+        #while(True)
+        #    self.m.RunNextTask()
+        #    x = self.GetExitStatus()
+        #    if( x == 1 ):
+        #        print 'Something bad happened'
+        #        # Do something about it...
 
         # Dispaly the exit banner.
         self.exit_banner()
