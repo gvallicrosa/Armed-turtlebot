@@ -637,7 +637,7 @@ endif()
 if(USE_CPP11)
   set(VISP_CPP11_FLAGS "${CPP11_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CPP11_CXX_FLAGS}")
-else()test
+else()
   set(VISP_CPP11_FLAGS "")
   if(CPP11_CXX_FLAGS)
     string(REPLACE ${CPP11_CXX_FLAGS} "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -1731,42 +1731,42 @@ endif()
 #----------------------------------------------------------------------
 # add html-doc target for doxygen documentation building
 #----------------------------------------------------------------------
-FIND_PACKAGE(Doxygen)
-IF (DOXYGEN_FOUND)
-  SET(VISP_HAVE_DOXYGEN "yes")        # for header vpConfig.h
-  SET(VISP_HAVE_DOXYGEN_FOUND "yes")  # for ViSP-third-party.txt
-  IF(DOXYGEN_DOT_EXECUTABLE)
-    SET(VISP_HAVE_DOT "yes")        # for header vpConfig.h
-    SET(VISP_HAVE_DOT_FOUND "yes")  # for ViSP-third-party.txt
-  ELSE(DOXYGEN_DOT_EXECUTABLE)
-    SET(VISP_HAVE_DOT "no")        # for header vpConfig.h
-    SET(VISP_HAVE_DOT_FOUND "no")  # for ViSP-third-party.txt
-  ENDIF(DOXYGEN_DOT_EXECUTABLE)
-  ## we need latex for doxygen because of the formulas
-  FIND_PACKAGE(LATEX)
-  IF    (NOT LATEX_COMPILER)
-    MESSAGE(STATUS "latex command LATEX_COMPILER not found but usually required. You will probably get warnings and user interaction on doxy run.")
-  ENDIF (NOT LATEX_COMPILER)
-  IF    (NOT MAKEINDEX_COMPILER)
-    MESSAGE(STATUS "makeindex command MAKEINDEX_COMPILER not found but usually required.")
-  ENDIF (NOT MAKEINDEX_COMPILER)
-  IF    (NOT DVIPS_CONVERTER)
-    MESSAGE(STATUS "dvips command DVIPS_CONVERTER not found but usually required.")
-  ENDIF (NOT DVIPS_CONVERTER)
-   
-  CONFIGURE_FILE(${VISP_SOURCE_DIR}/doc/config-doxygen.in
-    ${VISP_DOC_DIR}/config-doxygen
-    @ONLY )
+#FIND_PACKAGE(Doxygen)
+#IF (DOXYGEN_FOUND)
+#  SET(VISP_HAVE_DOXYGEN "yes")        # for header vpConfig.h
+#  SET(VISP_HAVE_DOXYGEN_FOUND "yes")  # for ViSP-third-party.txt
+#  IF(DOXYGEN_DOT_EXECUTABLE)
+#    SET(VISP_HAVE_DOT "yes")        # for header vpConfig.h
+#    SET(VISP_HAVE_DOT_FOUND "yes")  # for ViSP-third-party.txt
+#  ELSE(DOXYGEN_DOT_EXECUTABLE)
+#    SET(VISP_HAVE_DOT "no")        # for header vpConfig.h
+#    SET(VISP_HAVE_DOT_FOUND "no")  # for ViSP-third-party.txt
+#  ENDIF(DOXYGEN_DOT_EXECUTABLE)
+#  ## we need latex for doxygen because of the formulas
+#  FIND_PACKAGE(LATEX)
+#  IF    (NOT LATEX_COMPILER)
+#    MESSAGE(STATUS "latex command LATEX_COMPILER not found but usually required. You will probably get warnings and user interaction on doxy run.")
+#  ENDIF (NOT LATEX_COMPILER)
+#  IF    (NOT MAKEINDEX_COMPILER)
+#    MESSAGE(STATUS "makeindex command MAKEINDEX_COMPILER not found but usually required.")
+#  ENDIF (NOT MAKEINDEX_COMPILER)
+#  IF    (NOT DVIPS_CONVERTER)
+#    MESSAGE(STATUS "dvips command DVIPS_CONVERTER not found but usually required.")
+#  ENDIF (NOT DVIPS_CONVERTER)
+#   
+#  CONFIGURE_FILE(${VISP_SOURCE_DIR}/doc/config-doxygen.in
+#    ${VISP_DOC_DIR}/config-doxygen
+#    @ONLY )
 
-  CONFIGURE_FILE(${VISP_SOURCE_DIR}/doc/mainpage.doc.in
-    ${VISP_SOURCE_DIR}/doc/mainpage.doc
-    @ONLY )
-  ADD_CUSTOM_TARGET(html-doc ${DOXYGEN_EXECUTABLE} ${VISP_DOC_DIR}/config-doxygen) 
-ELSE(DOXYGEN_FOUND)
-  SET(VISP_HAVE_DOXYGEN "no")        # for header vpConfig.h
-  SET(VISP_HAVE_DOXYGEN_FOUND "no")  # for ViSP-third-party.txt
-  SET(VISP_HAVE_DOT_FOUND "no")      # for ViSP-third-party.txt
-ENDIF(DOXYGEN_FOUND)
+#  CONFIGURE_FILE(${VISP_SOURCE_DIR}/doc/mainpage.doc.in
+#    ${VISP_SOURCE_DIR}/doc/mainpage.doc
+#    @ONLY )
+#  ADD_CUSTOM_TARGET(html-doc ${DOXYGEN_EXECUTABLE} ${VISP_DOC_DIR}/config-doxygen) 
+#ELSE(DOXYGEN_FOUND)
+#  SET(VISP_HAVE_DOXYGEN "no")        # for header vpConfig.h
+#  SET(VISP_HAVE_DOXYGEN_FOUND "no")  # for ViSP-third-party.txt
+#  SET(VISP_HAVE_DOT_FOUND "no")      # for ViSP-third-party.txt
+#ENDIF(DOXYGEN_FOUND)
 
 #----------------------------------------------------------------------
 # Add definitions
@@ -2074,30 +2074,30 @@ endif(BUILD_PACKAGE)
 # Propagation in sub dirs
 #----------------------------------------------------------------------
 SUBDIRS(src)
-IF(BUILD_DEMOS)
-  SUBDIRS(demo)
-ENDIF(BUILD_DEMOS)
-IF(BUILD_EXAMPLES)
-  SUBDIRS(example)
-ENDIF(BUILD_EXAMPLES)
-IF(BUILD_TESTING)
-  #
-  # Test coverage specific code
-  #
-  IF(CMAKE_COMPILER_IS_GNUCXX AND NOT BUILD_SHARED_LIBS AND CMAKE_BUILD_TYPE MATCHES "Debug")
+#IF(BUILD_DEMOS)
+#  SUBDIRS(demo)
+#ENDIF(BUILD_DEMOS)
+#IF(BUILD_EXAMPLES)
+#  SUBDIRS(example)
+#ENDIF(BUILD_EXAMPLES)
+#IF(BUILD_TESTING)
+#  #
+#  # Test coverage specific code
+#  #
+#  IF(CMAKE_COMPILER_IS_GNUCXX AND NOT BUILD_SHARED_LIBS AND CMAKE_BUILD_TYPE MATCHES "Debug")
 
-    OPTION(BUILD_TEST_COVERAGE "Enable test coverage." OFF)
-  ENDIF()
+#    OPTION(BUILD_TEST_COVERAGE "Enable test coverage." OFF)
+#  ENDIF()
 
-  IF(BUILD_TEST_COVERAGE)
-    # Add build options for test coverage. Currently coverage is only supported
-    # on gcc compiler
-    # Because using -fprofile-arcs with shared lib can cause problems like:
-    # hidden symbol `__bb_init_func', we add this option only for static
-    # library build
-    MESSAGE(STATUS "Add -ftest-coverage -fprofile-arcs compiler options")
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ftest-coverage -fprofile-arcs")
-  ENDIF(BUILD_TEST_COVERAGE)
+#  IF(BUILD_TEST_COVERAGE)
+#    # Add build options for test coverage. Currently coverage is only supported
+#    # on gcc compiler
+#    # Because using -fprofile-arcs with shared lib can cause problems like:
+#    # hidden symbol `__bb_init_func', we add this option only for static
+#    # library build
+#    MESSAGE(STATUS "Add -ftest-coverage -fprofile-arcs compiler options")
+#    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ftest-coverage -fprofile-arcs")
+#  ENDIF(BUILD_TEST_COVERAGE)
 
-  SUBDIRS(test)
-ENDIF(BUILD_TESTING)
+#  SUBDIRS(test)
+#ENDIF(BUILD_TESTING)
