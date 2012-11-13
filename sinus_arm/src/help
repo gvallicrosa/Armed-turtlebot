@@ -18,17 +18,17 @@ roslaunch planning_environment planning_description_configuration_wizard.launch 
  
 # Topics available
 /diagnostics
-/elbow_flex_controller/command
-/elbow_flex_controller/state
 /motor_states/smart_arm
-/right_finger_controller/command
-/right_finger_controller/state
 /shoulder_pan_controller/command
 /shoulder_pan_controller/state
 /shoulder_pitch_controller/command
 /shoulder_pitch_controller/state
+/elbow_flex_controller/command
+/elbow_flex_controller/state
 /wrist_roll_controller/command
 /wrist_roll_controller/state
+/right_finger_controller/command
+/right_finger_controller/state
 
 # Example
 rostopic pub -1 /shoulder_pan_controller/command std_msgs/Float64 0

@@ -43,6 +43,8 @@ def from_arm_server(kind,data=[0,]):
           6 : move the four first joints to desired joint angles
           7 : move the four first joints to desired (x,y,z) using IK solver
           8 : grab/ungrab with the hand
+          9 : ask for (x,y,z) position of end effector
+         10 : ask if (x,y,z) is reachable
     Data should be provided for some of the requests.
     A response according to what is accomplished is retured.
     """
@@ -73,7 +75,8 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         
         # Useful lists
         self.sliders = [self.slider_j1,self.slider_j2,self.slider_j3,self.slider_j4]
-        self.labels = [self.stat_j1,self.stat_j2,self.stat_j3,self.stat_j4,self.stat_j5]
+        self.labels = [self.stat_j1,self.stat_j2,self.stat_j3,self.stat_j4,self.stat_j5,
+                       self.stat_x,self.stat_y,self.stat_z]
         
         # Update initial labels and sliders
         self.refresh_joints()
@@ -142,6 +145,12 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
             ## Update sliders
             if i < 4:
                 self.sliders[i].setSliderPosition(get_spos(i,joints_curr[i]))
+        # Request position status
+        xyz = from_arm_server(9)
+        for i in range(3):
+            ## Update labels
+            text = "%1.4f" % xyz[i]
+            self.labels[5+i].setText(text)
             
         
         

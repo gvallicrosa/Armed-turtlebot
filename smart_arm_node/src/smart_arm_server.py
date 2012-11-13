@@ -32,6 +32,8 @@ def ask_server(req):
           6 : move the four first joints to desired joint angles
           7 : move the four first joints to desired (x,y,z) using IK solver
           8 : grab/ungrab with the hand
+          9 : ask for (x,y,z) position of end effector
+         10 : ask if (x,y,z) is reachable
     Data should be provided for some of the requests.
     A response according to what is accomplished is retured.
     """
@@ -52,6 +54,9 @@ def ask_server(req):
     elif req.what == 8:
         # grab/ungrab
         ans = [arm.grab(),]
+    elif req.what == 9:
+        # position status
+        ans = arm.fkine(joints_curr)[:3,3]
     else:
         # no valid request
         print 'no valid request\n'
@@ -313,7 +318,7 @@ class Arm(object):
         for i in range(4):
             if sols[i,4] == 0:
                 valid.append(sols[i,:4])
-        ipdb.set_trace()
+#        ipdb.set_trace()
         #TODO: check offset interaction here!!!!
         return valid[0]
     
@@ -415,8 +420,9 @@ class Arm(object):
 
 ################################################################################
 # Default values
-qlims = array([[-1.22207136,1.22207136],[-1.04822021,1.97372195],[-1.88679637,1.97372195],
-               [-2.61288061,2.61799388],[-0.24032366,0.84368943]])
+qlims = array([[-2.60265407, 2.59754080], [-1.53909406, 1.84589021],
+               [-1.84589021, 1.77941771], [-1.19650501, 2.59754080],
+               [-0.80789655, 0.18919096]])
 
 # Control of the joint status initialization
 joints_move = [False,]*5
@@ -462,8 +468,12 @@ if __name__ == '__main__':
         print '# Readed limits from controller:\n', qlims, '\n'
     except: # arm controller not initialized
         print '# Error: No controller found.\nLoading standard joint limits' # TODO:change to rosdebug info
-        qlims = array([[-1.22207136,1.22207136],[-1.04822021,1.97372195],[-1.88679637,1.97372195],
-                       [-2.61288061,2.61799388],[-0.24032366,0.84368943]])
+#        qlims = array([[-1.22207136,1.22207136],[-1.04822021,1.97372195],[-1.88679637,1.97372195],
+#                       [-2.61288061,2.61799388],[-0.24032366,0.84368943]])
+        qlims = array([[-2.60265407, 2.59754080], [-1.53909406, 1.84589021],
+                       [-1.84589021, 1.77941771], [-1.19650501, 2.59754080],
+                       [-0.80789655, 0.18919096]])
+
                        
     # Sizes obtained with DH method
     a1 = 0.051
@@ -476,22 +486,14 @@ if __name__ == '__main__':
     off4 = +0.035792885
 
     # Link creation
-    ## Design parameters
     links = list()
     links.append( Link(    0,  d1, a1, -pi/2,     0,    0) )
     links.append( Link(    0,   0, a2,    pi,     0, off2) ) # offset=-45
     links.append( Link(-pi/2,   0, a3,  pi/2, -pi/2, off3) )
     links.append( Link(   pi, -d4,  0,    pi,    pi, off4) )
-    ## Real parameters (offset of the real motors)
     
     # Robot creation
     arm = Arm(links)
-
-    # Forward kinematics
-    print '# Forward kinematics test:\n', arm.fkine([0,0,0,0]), '\n'
-#    print '# Inverse kinematics test:\n', arm.ikine([a1+a2+d4,0,d1-a3])
-#    print '# Inverse kinematics test:\n', arm.ikine([0.2,0,d1-a3])
-#    ipdb.set_trace()
         
     # Continue execution forever
     rospy.spin()

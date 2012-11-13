@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'interface.ui'
 #
-# Created: Mon Oct 29 16:55:48 2012
+# Created: Wed Nov  7 17:52:10 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -325,6 +325,32 @@ class Ui_Dialog(object):
         self.verticalLayout_3.addWidget(self.pushButton_grab)
         spacerItem15 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_3.addItem(spacerItem15)
+        self.formLayout_3 = QtGui.QFormLayout()
+        self.formLayout_3.setObjectName(_fromUtf8("formLayout_3"))
+        self.label_13 = QtGui.QLabel(Dialog)
+        self.label_13.setObjectName(_fromUtf8("label_13"))
+        self.formLayout_3.setWidget(0, QtGui.QFormLayout.LabelRole, self.label_13)
+        self.label_10 = QtGui.QLabel(Dialog)
+        self.label_10.setObjectName(_fromUtf8("label_10"))
+        self.formLayout_3.setWidget(1, QtGui.QFormLayout.LabelRole, self.label_10)
+        self.stat_y = QtGui.QLabel(Dialog)
+        self.stat_y.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.stat_y.setObjectName(_fromUtf8("stat_y"))
+        self.formLayout_3.setWidget(1, QtGui.QFormLayout.FieldRole, self.stat_y)
+        self.label_9 = QtGui.QLabel(Dialog)
+        self.label_9.setObjectName(_fromUtf8("label_9"))
+        self.formLayout_3.setWidget(2, QtGui.QFormLayout.LabelRole, self.label_9)
+        self.stat_z = QtGui.QLabel(Dialog)
+        self.stat_z.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.stat_z.setObjectName(_fromUtf8("stat_z"))
+        self.formLayout_3.setWidget(2, QtGui.QFormLayout.FieldRole, self.stat_z)
+        self.stat_x = QtGui.QLabel(Dialog)
+        self.stat_x.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.stat_x.setObjectName(_fromUtf8("stat_x"))
+        self.formLayout_3.setWidget(0, QtGui.QFormLayout.FieldRole, self.stat_x)
+        self.verticalLayout_3.addLayout(self.formLayout_3)
+        spacerItem16 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem16)
         self.formLayout = QtGui.QFormLayout()
         self.formLayout.setObjectName(_fromUtf8("formLayout"))
         self.stat_j5_2 = QtGui.QLabel(Dialog)
@@ -420,6 +446,12 @@ class Ui_Dialog(object):
         self.stat_j5.setText(QtGui.QApplication.translate("Dialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_grab.setText(QtGui.QApplication.translate("Dialog", "Grab (G)", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_grab.setShortcut(QtGui.QApplication.translate("Dialog", "G", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_13.setText(QtGui.QApplication.translate("Dialog", "X :", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_10.setText(QtGui.QApplication.translate("Dialog", "Y :", None, QtGui.QApplication.UnicodeUTF8))
+        self.stat_y.setText(QtGui.QApplication.translate("Dialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_9.setText(QtGui.QApplication.translate("Dialog", "Z :", None, QtGui.QApplication.UnicodeUTF8))
+        self.stat_z.setText(QtGui.QApplication.translate("Dialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
+        self.stat_x.setText(QtGui.QApplication.translate("Dialog", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
         self.stat_j5_2.setText(QtGui.QApplication.translate("Dialog", "X:", None, QtGui.QApplication.UnicodeUTF8))
         self.stat_j5_3.setText(QtGui.QApplication.translate("Dialog", "Y:", None, QtGui.QApplication.UnicodeUTF8))
         self.stat_j5_4.setText(QtGui.QApplication.translate("Dialog", "Z:", None, QtGui.QApplication.UnicodeUTF8))

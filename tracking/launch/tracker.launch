@@ -1,0 +1,5 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+    <node name="tracker" pkg="tracking" type="tracking" args="src/calibData/img-00.pgm.xml 0" > </node>   
+</launch>

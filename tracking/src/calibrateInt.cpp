@@ -24,6 +24,7 @@
   ./calibrateInt -v /home/fede/projects/visp-test1/calibData/img-%02d.pgm
   
 */
+#include "ros/ros.h"
 
 #include <visp/vpDebug.h>
 #include <visp/vpParseArgv.h>
@@ -255,6 +256,10 @@ unsigned int recordImageSequence(const std::string& out_path, const unsigned int
 
 int main(int argc, const char ** argv)
 {
+  int v1 = 0; char** v2;
+  ros::init(v1, v2, "calibrateInt");
+  ros::NodeHandle nodeh;
+  
   ///////////////////////////////////////////
   //---------PARAMETERS--------------------
   

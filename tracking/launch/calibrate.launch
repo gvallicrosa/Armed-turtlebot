@@ -1,0 +1,5 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+    <node name="calibrateInt" pkg="tracking" type="calibrateInt" > </node>   
+</launch>

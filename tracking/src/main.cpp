@@ -1,3 +1,5 @@
+#include "ros/ros.h"
+
 #include <visp/vpConfig.h>
 #include <visp/vpImage.h>
 #include <visp/vpMeEllipse.h>
@@ -13,14 +15,19 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
-int main()
+int main(int argc, char **argv)
 {
+  ros::init(argc, argv, "tracker");
+  ros::NodeHandle nodeh;
   // Image containters ---------------
   vpImage<unsigned char> vpI;
   cv::Mat cvI;
   
   // Image grabber initialisation ---------------
-  cv::VideoCapture capture(1);
+  int id = 1;
+  if (argc == 3) id = atoi(argv[2]);
+  else if (argc == 1) printf("Usage:\n   ./tracking  path-to-calib.xml  video-source");
+  cv::VideoCapture capture(id);
   capture.set(CV_CAP_PROP_FRAME_HEIGHT, 480 );
   capture.set(CV_CAP_PROP_FRAME_WIDTH, 640 );
   capture >> cvI;
@@ -62,7 +69,7 @@ int main()
   
   //Load Camera parameters  --------------
   vpCameraParameters cam;
-  std::string xmlName = "/home/fede/projects/visp-test1/calibData/img-00.pgm.xml";
+  std::string xmlName = argv[1];
   vpXmlParserCamera xmlParser;
   if( xmlParser.parse(cam, xmlName.c_str(), "LogitechC310", vpCameraParameters::perspectiveProjWithDistortion)
                                                                             != vpXmlParserCamera::SEQUENCE_OK)
