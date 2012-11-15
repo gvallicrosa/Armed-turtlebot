@@ -106,6 +106,7 @@ class mc:
         # Has the belief changed?
         if self.beliefs[belief] != value:
             # Update our records.
+            self.beliefs[belief] = value
             print("* Updated belief: '" + str(belief) + "' = " + str(value))
 
 ###############################################################################
