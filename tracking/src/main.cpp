@@ -1,4 +1,5 @@
-#include "ros/ros.h"
+#include <ros/ros.h>
+#include "tf/transform_broadcaster.h"
 
 #include <visp/vpConfig.h>
 #include <visp/vpImage.h>
@@ -22,23 +23,22 @@ int main(int argc, char **argv)
   ros::NodeHandle nodeh;
   std::string calibfile;
   int cameraid;
-  nodeh.getParam("/calibfile",calibfile);
-  nodeh.getParam("/cameraID",cameraid);
+  nodeh.getParam("/calibfile", calibfile);
+  nodeh.getParam("/cameraID",  cameraid);
+  // Transform broadcaster
+  static tf::TransformBroadcaster br;
+  tf::Transform transform;
+  transform.setRotation( tf::Quaternion(0, 0, 0) );
   
   // Image containters ---------------
   vpImage<unsigned char> vpI;
   cv::Mat cvI;
-  
-  // Input info ---------------
-  ROS_INFO("XML config : %s", calibfile.c_str());
-  ROS_INFO("Camera ID  : %d", cameraid);
   
   // Image grabber initialisation ---------------
   cv::VideoCapture capture(cameraid);
   capture.set(CV_CAP_PROP_FRAME_HEIGHT, 480 );
   capture.set(CV_CAP_PROP_FRAME_WIDTH, 640 );
   capture >> cvI;
-
   
   // Convert image ---------------
   vpImageConvert::convert(cvI, vpI);
@@ -51,14 +51,13 @@ int main(int argc, char **argv)
   #elif defined VISP_HAVE_OPEN_CV
   vpDisplayOpenCV d;
   #endif
-  
   d.init(vpI, 0, 0, "") ;
   
   vpDisplay::display(vpI);
   vpDisplay::flush(vpI);
 
-  vpMeEllipse ellipse;
-  vpMe me;
+  vpMeEllipse ellipse; // VISP moving ellipse
+  vpMe me;             // VISP moving edge
 
   //Set the tracking parameters ---------------
   me.setRange(20);
@@ -71,15 +70,14 @@ int main(int argc, char **argv)
   
   //Initialize the tracking and display ---------------
   ellipse.initTracking(vpI);
-  ellipse.setDisplay(vpMeSite::RANGE_RESULT) ; // uncomment to show search lines
+  //ellipse.setDisplay(vpMeSite::RANGE_RESULT) ; // uncomment to show search lines
   vpDisplay::flush(vpI);
   
   //Load Camera parameters  --------------
   vpCameraParameters cam;
   std::string xmlName = calibfile;
   vpXmlParserCamera xmlParser;
-  if( xmlParser.parse(cam, xmlName.c_str(), "LogitechC310", vpCameraParameters::perspectiveProjWithDistortion)
-                                                                            != vpXmlParserCamera::SEQUENCE_OK)
+  if( xmlParser.parse(cam, xmlName.c_str(), "LogitechC110", vpCameraParameters::perspectiveProjWithDistortion)  !=  vpXmlParserCamera::SEQUENCE_OK)
     std::cout << "Error reading the XML calibration data!" << std::endl;
   
   // Pose estimation ---------------
@@ -149,12 +147,16 @@ int main(int argc, char **argv)
     T.extract(t);
     pose.display(vpI, T, cam, 0.05, vpColor::cyan);
     
-    sprintf(centerStr,"Center in pixels: (%f, %f), Radius in pixels: %f", IP[0].get_i(), IP[0].get_j(), rI);
-    vpDisplay::displayCharString(vpI, vpImagePoint(20, 20), centerStr, vpColor::lightRed) ;
-    sprintf(realVals,"Center in world:  (%f, %f, %f)", t[0], t[1], t[2]);
-    vpDisplay::displayCharString(vpI, vpImagePoint(40, 20), realVals, vpColor::lightRed) ;
-    
+    //std::sprintf(centerStr,"Center in pixels: (%f, %f), Radius in pixels: %f", IP[0].get_i(), IP[0].get_j(), rI);
+    //vpDisplay::displayCharString(vpI, vpImagePoint(20, 20), centerStr, vpColor::lightRed) ;
+    //std::sprintf(realVals,"Center in world:  (%f, %f, %f)", t[0], t[1], t[2]);
+    //vpDisplay::displayCharString(vpI, vpImagePoint(40, 20), realVals, vpColor::lightRed) ;
+    std::printf("Center in pixels: (%f, %f), Radius in pixels: %f\n", IP[0].get_i(), IP[0].get_j(), rI);
+    std::printf("Center in world:  (%f, %f, %f)\n\n", t[0], t[1], t[2]);
     vpDisplay::flush(vpI);
+    
+    transform.setOrigin( tf::Vector3(t[0], t[1], t[2]) );
+    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "joint5", "obj_pos"));
   }
   capture.release();
   return 0;
