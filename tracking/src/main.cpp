@@ -17,17 +17,24 @@
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "tracker");
+  // ROS initialisation --------------
+  ros::init(argc, argv, "ball_tracking");
   ros::NodeHandle nodeh;
+  std::string calibfile;
+  int cameraid;
+  nodeh.getParam("/calibfile",calibfile);
+  nodeh.getParam("/cameraID",cameraid);
+  
   // Image containters ---------------
   vpImage<unsigned char> vpI;
   cv::Mat cvI;
   
+  // Input info ---------------
+  ROS_INFO("XML config : %s", calibfile.c_str());
+  ROS_INFO("Camera ID  : %d", cameraid);
+  
   // Image grabber initialisation ---------------
-  int id = 1;
-  if (argc == 3) id = atoi(argv[2]);
-  else if (argc == 1) printf("Usage:\n   ./tracking  path-to-calib.xml  video-source");
-  cv::VideoCapture capture(id);
+  cv::VideoCapture capture(cameraid);
   capture.set(CV_CAP_PROP_FRAME_HEIGHT, 480 );
   capture.set(CV_CAP_PROP_FRAME_WIDTH, 640 );
   capture >> cvI;
@@ -69,7 +76,7 @@ int main(int argc, char **argv)
   
   //Load Camera parameters  --------------
   vpCameraParameters cam;
-  std::string xmlName = argv[1];
+  std::string xmlName = calibfile;
   vpXmlParserCamera xmlParser;
   if( xmlParser.parse(cam, xmlName.c_str(), "LogitechC310", vpCameraParameters::perspectiveProjWithDistortion)
                                                                             != vpXmlParserCamera::SEQUENCE_OK)

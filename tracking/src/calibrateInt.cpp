@@ -254,11 +254,12 @@ bool getOptions(int argc,const char **argv, std::string &ipath, std::string &ppa
 unsigned int recordImageSequence(const std::string& out_path, const unsigned int opt_step, const unsigned int first_image);
 #endif
 
-int main(int argc, const char ** argv)
+int main(int argc, char ** argv)
 {
-  int v1 = 0; char** v2;
-  ros::init(v1, v2, "calibrateInt");
+  ros::init(argc, argv, "camera_calibration");
   ros::NodeHandle nodeh;
+  std::string impath;
+  nodeh.getParam("/impath", impath);
   
   ///////////////////////////////////////////
   //---------PARAMETERS--------------------
@@ -332,10 +333,11 @@ int main(int argc, const char ** argv)
     ipath = env_ipath;
 
   // Read the command line options
-  if (getOptions(argc, argv, opt_ipath, opt_ppath,opt_gray,opt_first, opt_nimages,
-                 opt_step, opt_lambda, opt_display, opt_click, opt_video, opt_video_image_path) == false) {
-    return (-1);
-  }
+  //if (getOptions(argc, argv, opt_ipath, opt_ppath,opt_gray,opt_first, opt_nimages,
+  //               opt_step, opt_lambda, opt_display, opt_click, opt_video, opt_video_image_path) == false) {
+  //  return (-1);
+  //}
+  opt_ppath = impath;
   
   if(opt_video){
 #if (defined(VISP_HAVE_OPENCV) || defined(VISP_HAVE_V4L2) || defined(VISP_HAVE_DIRECTSHOW) || defined(VISP_HAVE_DC1394_2))

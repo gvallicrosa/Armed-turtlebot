@@ -7,28 +7,6 @@
    the vpXmlParserCamera class.-->
   <camera>
     <!--Name of the camera-->
-    <name>LogitechC310</name>
-    <!--Size of the image on which camera calibration was performed-->
-    <image_width>640</image_width>
-    <image_height>480</image_height>
-    <!--Intrinsic camera parameters computed for each projection model-->
-    <model>
-      <!--Projection model type-->
-      <type>perspectiveProjWithDistortion</type>
-      <!--Pixel ratio-->
-      <px>812.4944151672</px>
-      <py>815.9997014072</py>
-      <!--Principal point-->
-      <u0>312.0446460328</u0>
-      <v0>269.3733045211</v0>
-      <!--Undistorted to distorted distortion parameter-->
-      <kud>0.1355329630</kud>
-      <!--Distorted to undistorted distortion parameter-->
-      <kdu>-0.1323087021</kdu>
-    </model>
-  </camera>
-  <camera>
-    <!--Name of the camera-->
     <name>LogitechC110</name>
     <!--Size of the image on which camera calibration was performed-->
     <image_width>640</image_width>
@@ -38,15 +16,15 @@
       <!--Projection model type-->
       <type>perspectiveProjWithDistortion</type>
       <!--Pixel ratio-->
-      <px>830.5286463940</px>
-      <py>833.9518253183</py>
+      <px>830.4649874836</px>
+      <py>833.9004492264</py>
       <!--Principal point-->
-      <u0>315.5554002828</u0>
-      <v0>262.0864462353</v0>
+      <u0>315.5507836313</u0>
+      <v0>262.1453808753</v0>
       <!--Undistorted to distorted distortion parameter-->
-      <kud>0.1089856881</kud>
+      <kud>0.1091151007</kud>
       <!--Distorted to undistorted distortion parameter-->
-      <kdu>-0.1068725147</kdu>
+      <kdu>-0.1069945532</kdu>
     </model>
   </camera>
 </root>

@@ -1,5 +1,8 @@
 <!-- -*- mode: XML -*- -->
 
 <launch>
-    <node name="calibrateInt" pkg="tracking" type="calibrateInt" > </node>   
+    <!--PARAMETERS-->
+    <param name="/impath"  value="$(find tracking)/src/calibData/img-%02d.pgm" />
+    <!--NODE-->
+    <node pkg="tracking" type="calibrateInt" name="CalibrateInt"/>
 </launch>
