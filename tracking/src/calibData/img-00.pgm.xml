@@ -7,7 +7,7 @@
    the vpXmlParserCamera class.-->
   <camera>
     <!--Name of the camera-->
-    <name>LogitechC110</name>
+    <name>LogitechC310</name>
     <!--Size of the image on which camera calibration was performed-->
     <image_width>640</image_width>
     <image_height>480</image_height>

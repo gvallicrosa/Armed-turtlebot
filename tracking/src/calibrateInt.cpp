@@ -929,7 +929,7 @@ int main(int argc, char ** argv)
     char camFilename[4096];
     std::string camFilename0 = opt_ppath + ".xml";
     sprintf(camFilename, camFilename0.c_str(), 0);   
-    if(camSave.save(cam, camFilename, "LogitechC110", I.getCols(), I.getHeight()) != vpXmlParserCamera::SEQUENCE_OK)
+    if(camSave.save(cam, camFilename, "LogitechC310", I.getCols(), I.getHeight()) != vpXmlParserCamera::SEQUENCE_OK)
     std::cout << "Cannot save camera parameters" << std::endl;
   }
   else
