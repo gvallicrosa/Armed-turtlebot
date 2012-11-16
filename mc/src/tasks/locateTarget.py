@@ -12,11 +12,11 @@ from task import task
 
 ###############################################################################
 
-class fixNodes(task):
+class locateTarget(task):
 
     def __init__(self):
         pass
 
     def task(self, statusServices=[]):
-        """Make sure all nodes are up and running."""
-        rospy.loginfo("* Fixing nodes...")
+        """Locate the target."""
+        rospy.loginfo("* Locating target...")

@@ -12,11 +12,11 @@ from task import task
 
 ###############################################################################
 
-class fixNodes(task):
+class handleCrash(task):
 
     def __init__(self):
         pass
 
     def task(self, statusServices=[]):
-        """Make sure all nodes are up and running."""
-        rospy.loginfo("* Fixing nodes...")
+        """Handle crash scenario."""
+        rospy.loginfo("* Handling crash...")

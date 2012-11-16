@@ -12,11 +12,11 @@ from task import task
 
 ###############################################################################
 
-class calibrateCamera(task):
+class graspTarget(task):
 
     def __init__(self):
         pass
 
     def task(self, statusServices=[]):
-        """Calibrate the camera."""
-        rospy.loginfo("* Calibrating camera...")
+        """Grasp the target."""
+        rospy.loginfo("* Grasping target...")

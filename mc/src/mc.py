@@ -54,7 +54,7 @@ class mc:
 
     def __init__(self):
         """Initialize local varaiables etc."""
-        print("* Initializing mission control node...")
+        rospy.loginfo("* Initializing mission control node...")
 
         self.beliefs = {
                         'targetLocated': 0,
@@ -71,7 +71,7 @@ class mc:
 
     def launch(self):
         """Launch the mission control logic."""
-        print("* Launching mission control logic...")
+        rospy.loginfo("* Launching mission control logic...")
 
         # 1. Continuously update beliefs
         self.listen()
@@ -107,14 +107,14 @@ class mc:
         if self.beliefs[belief] != value:
             # Update our records.
             self.beliefs[belief] = value
-            print("* Updated belief: '" + str(belief) + "' = " + str(value))
+            rospy.loginfo("* Updated belief: '" + str(belief) + "' = " + str(value))
 
 ###############################################################################
 
     def deliberate(self):
         """ Use the current values in self.beliefs to decide which
             task to perform next."""
-        print("* Deliberating...")
+        rospy.loginfo("* Deliberating...")
 
         # The following list of rules are ordered by importance.
         # I.e. for any rule to be applied, all of the rules above
@@ -130,17 +130,17 @@ class mc:
             return)
 
         #######################################################################
-        # Rule 2: Has the turtlebot crashed into something?
-        if(self.beliefs[crashed] == 1):
-            # Try to reorient the turtlebot.
-            self.currentTask = tasks.handleCrash()
-            return
-
-        #######################################################################
-        # Rule 3: Is the camera calibrated?
+        # Rule 2: Is the camera calibrated?
         if(self.beliefs[cameraCalibrated] == 0):
             # Calibrate the camera.
             self.currentTask = tasks.calibrateCamera()
+            return
+
+        #######################################################################
+        # Rule 3: Has the turtlebot crashed into something?
+        if(self.beliefs[crashed] == 1):
+            # Try to reorient the turtlebot.
+            self.currentTask = tasks.handleCrash()
             return
 
         #######################################################################
@@ -164,13 +164,18 @@ class mc:
             self.currentTask = tasks.gotoTarget()
             return
 
+        #######################################################################
+        # Rule 7: If everything is OK then grasp the target.
+        else:
+            self.currentTask = tasks.graspTarget()
+
 ###############################################################################
 
     def act(self):
         """Carry out the next task."""
-        print("* Taking action...")
+        rospy.loginfo("* Taking action...")
         self.currentTask.start()
-        print("* Action complete.")
+        rospy.loginfo("* Action complete.")
 
 ###############################################################################
 
