@@ -97,7 +97,7 @@ class mc:
             if(self.beliefs['targetGrasped'] == 1):
                 break
 
-        rospy.loginfo("MC: MIssion complete!")
+        rospy.loginfo("MC: Mission complete!")
 
 ###############################################################################
 
