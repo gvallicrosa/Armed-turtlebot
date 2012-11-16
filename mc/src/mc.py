@@ -99,7 +99,7 @@ class mc:
         rospy.spin()
 
 ###############################################################################
-    
+
     def updateBelief(self, data):
         belief = data.belief
         value = data.value
@@ -110,7 +110,7 @@ class mc:
             print("* Updated belief: '" + str(belief) + "' = " + str(value))
 
 ###############################################################################
-    
+
     def deliberate(self):
         """ Use the current values in self.beliefs to decide which
             task to perform next."""
@@ -123,49 +123,49 @@ class mc:
         # target, we must check that we are at the target.
 
         #######################################################################
-        # Rule: Are all of the ROS nodes online?
+        # Rule 1: Are all of the ROS nodes online?
         if(self.beliefs[nodesOnline] == 0)
             # Try to fix downed nodes.
             self.currentTask = tasks.fixNodes()
             return)
-        
+
         #######################################################################
-        # Rule: Has the turtlebot crashed into something?
+        # Rule 2: Has the turtlebot crashed into something?
         if(self.beliefs[crashed] == 1):
             # Try to reorient the turtlebot.
             self.currentTask = tasks.handleCrash()
             return
 
         #######################################################################
-        # Rule: Is the camera calibrated?
+        # Rule 3: Is the camera calibrated?
         if(self.beliefs[cameraCalibrated] == 0):
             # Calibrate the camera.
             self.currentTask = tasks.calibrateCamera()
             return
-        
+
         #######################################################################
-        # Rule: Has the target been located?
+        # Rule 4: Has the target been located?
         if(self.beliefs[targetLocated] == 0):
             # Calibrate the camera.
             self.currentTask = tasks.locateTarget()
             return
 
         #######################################################################
-        # Rule: Is the target in the centre of the camera?
+        # Rule 5: Is the target in the centre of the camera?
         if(self.beliefs[targetCentred] == 0):
             # Calibrate the camera.
             self.currentTask = tasks.centreTarget()
             return
 
         #######################################################################
-        # Rule: Is the turtlebot at the target?
+        # Rule 6: Is the turtlebot at the target?
         if(self.beliefs[atTarget] == 0):
             # Drive to the target.
             self.currentTask = tasks.gotoTarget()
             return
 
 ###############################################################################
-    
+
     def act(self):
         """Carry out the next task."""
         print("* Taking action...")
