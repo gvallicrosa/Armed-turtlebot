@@ -41,11 +41,18 @@
 
 # ROS modules
 import roslib
-#roslib.load_manifest('mc')
+roslib.load_manifest('mc')
 import rospy
 
 # Custom modules
-import tasks
+from tasks.fixNodes import fixNodes
+from tasks.calibrateCamera import calibrateCamera
+from tasks.handleCrash import handleCrash
+from tasks.locateTarget import locateTarget
+from tasks.centreTarget import centreTarget
+from tasks.gotoTarget import gotoTarget
+from tasks.graspTarget import graspTarget
+from mc.msg import belief_msg
 
 class mc:
     """Mission control class, based on hybrid BDI architecture."""
@@ -63,9 +70,9 @@ class mc:
                         'crashed': 0,
                         'cameraCalibrated': 0,
                         'nodesOnline': 0,
-                       }
+                        }
 
-        self.currentTask
+        self.currentTask = 0
 
 ###############################################################################
 
@@ -84,25 +91,25 @@ class mc:
 
             # 3. Act.
             self.act()
-            break
+
 
 ###############################################################################
 
-    def listen(self)
+    def listen(self):
         """Listen for changes in beliefs."""
-        rospy.Subscriber("belief_crashed", data, self.updateBelief)
-        rospy.Subscriber("belief_nodesOnline", data, self.updateBelief)
-        rospy.Subscriber("belief_cameraCalibrated", data, self.updateBelief)
-        rospy.Subscriber("belief_targetLocated", data, self.updateBelief)
-        rospy.Subscriber("belief_targetCentred", data, self.updateBelief)
-        rospy.Subscriber("belief_atTarget", data, self.updateBelief)
-        rospy.spin()
+        rospy.Subscriber("belief_crashed", belief_msg, self.updateBelief)
+        rospy.Subscriber("belief_nodesOnline", belief_msg, self.updateBelief)
+        rospy.Subscriber("belief_cameraCalibrated", belief_msg, self.updateBelief)
+        rospy.Subscriber("belief_targetLocated", belief_msg, self.updateBelief)
+        rospy.Subscriber("belief_targetCentred", belief_msg, self.updateBelief)
+        rospy.Subscriber("belief_atTarget", belief_msg, self.updateBelief)
+        rospy.loginfo("* Listening for 'belief' messages in the background...")
 
 ###############################################################################
 
-    def updateBelief(self, data):
-        belief = data.belief
-        value = data.value
+    def updateBelief(self, msg):
+        belief = msg.belief
+        value = msg.value
         # Has the belief changed?
         if self.beliefs[belief] != value:
             # Update our records.
@@ -124,50 +131,57 @@ class mc:
 
         #######################################################################
         # Rule 1: Are all of the ROS nodes online?
-        if(self.beliefs[nodesOnline] == 0)
+        if(self.beliefs['nodesOnline'] == 0):
             # Try to fix downed nodes.
-            self.currentTask = tasks.fixNodes()
-            return)
+            rospy.loginfo("** Fixing nodes...")
+            self.currentTask = fixNodes()
+            return
 
         #######################################################################
         # Rule 2: Is the camera calibrated?
-        if(self.beliefs[cameraCalibrated] == 0):
+        if(self.beliefs['cameraCalibrated'] == 0):
             # Calibrate the camera.
-            self.currentTask = tasks.calibrateCamera()
+            rospy.loginfo("** Calibrating camera...")
+            self.currentTask = calibrateCamera()
             return
 
         #######################################################################
         # Rule 3: Has the turtlebot crashed into something?
-        if(self.beliefs[crashed] == 1):
+        if(self.beliefs['crashed'] == 1):
             # Try to reorient the turtlebot.
-            self.currentTask = tasks.handleCrash()
+            rospy.loginfo("** Handling crash...")
+            self.currentTask = handleCrash()
             return
 
         #######################################################################
         # Rule 4: Has the target been located?
-        if(self.beliefs[targetLocated] == 0):
+        if(self.beliefs['targetLocated'] == 0):
             # Calibrate the camera.
-            self.currentTask = tasks.locateTarget()
+            rospy.loginfo("** Locating target...")
+            self.currentTask = locateTarget()
             return
 
         #######################################################################
         # Rule 5: Is the target in the centre of the camera?
-        if(self.beliefs[targetCentred] == 0):
+        if(self.beliefs['targetCentred'] == 0):
             # Calibrate the camera.
-            self.currentTask = tasks.centreTarget()
+            rospy.loginfo("** Centering target...")
+            self.currentTask = centreTarget()
             return
 
         #######################################################################
         # Rule 6: Is the turtlebot at the target?
-        if(self.beliefs[atTarget] == 0):
+        if(self.beliefs['atTarget'] == 0):
             # Drive to the target.
-            self.currentTask = tasks.gotoTarget()
+            rospy.loginfo("** Approaching target...")
+            self.currentTask = gotoTarget()
             return
 
         #######################################################################
         # Rule 7: If everything is OK then grasp the target.
         else:
-            self.currentTask = tasks.graspTarget()
+            rospy.loginfo("** Grasping target...")
+            self.currentTask = graspTarget()
 
 ###############################################################################
 
@@ -190,3 +204,6 @@ if __name__ == "__main__":
 
     # Launch mc logic.
     m.launch()
+
+    # Keep the node alive
+    rospy.spin()
