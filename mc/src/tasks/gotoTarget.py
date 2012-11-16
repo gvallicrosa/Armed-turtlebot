@@ -9,6 +9,7 @@ import rospy
 
 # Custom modules
 from task import task
+from mc.msg import belief_msg
 
 ###############################################################################
 
@@ -19,4 +20,7 @@ class gotoTarget(task):
 
     def task(self, statusServices=[]):
         """Approach the target."""
-        rospy.loginfo("* Approaching target...")
+        pub = rospy.Publisher('belief_atTarget', belief_msg)
+        pub.publish(belief_msg('atTarget', 1))
+        rospy.loginfo("**** I'm at the target!")
+

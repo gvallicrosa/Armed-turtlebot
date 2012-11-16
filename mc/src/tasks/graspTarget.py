@@ -9,6 +9,7 @@ import rospy
 
 # Custom modules
 from task import task
+from mc.msg import belief_msg
 
 ###############################################################################
 
@@ -19,4 +20,6 @@ class graspTarget(task):
 
     def task(self, statusServices=[]):
         """Grasp the target."""
-        rospy.loginfo("* Grasping target...")
+        pub = rospy.Publisher('belief_targetGrasped', belief_msg)
+        pub.publish(belief_msg('targetGrasped', 1))
+        rospy.loginfo("**** I grasped the target!")

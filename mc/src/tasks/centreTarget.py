@@ -9,6 +9,7 @@ import rospy
 
 # Custom modules
 from task import task
+from mc.msg import belief_msg
 
 ###############################################################################
 
@@ -19,4 +20,6 @@ class centreTarget(task):
 
     def task(self, statusServices=[]):
         """Centre the target in the camera."""
-        rospy.loginfo("* Centering target...")
+        pub = rospy.Publisher('belief_targetCentred', belief_msg)
+        pub.publish(belief_msg('targetCentred', 1))
+        rospy.loginfo("**** Target centred!")

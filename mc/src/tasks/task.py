@@ -36,7 +36,7 @@ class task:
 
         >>> requestService(service_name)
         """
-      
+
         # Appropriate services will have to be imported on a per task basis.
         serviceName = service.__name__
         status = 0
@@ -61,6 +61,9 @@ class task:
         return reply
 
     def start(self):
+        self.task()
+
+    def task(self):
         """
         This will be implemented in the derived classes.
         It should consist of calls to __requestService().

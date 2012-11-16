@@ -70,6 +70,7 @@ class mc:
                         'crashed': 0,
                         'cameraCalibrated': 0,
                         'nodesOnline': 0,
+                        'targetGrasped': 0
                         }
 
         self.currentTask = 0
@@ -92,6 +93,11 @@ class mc:
             # 3. Act.
             self.act()
 
+            # Is the mission completed?
+            if(self.beliefs['targetGrasped'] == 1):
+                break
+
+        rospy.loginfo("* MIssion complete!")
 
 ###############################################################################
 
@@ -103,6 +109,7 @@ class mc:
         rospy.Subscriber("belief_targetLocated", belief_msg, self.updateBelief)
         rospy.Subscriber("belief_targetCentred", belief_msg, self.updateBelief)
         rospy.Subscriber("belief_atTarget", belief_msg, self.updateBelief)
+        rospy.Subscriber("belief_targetGrasped", belief_msg, self.updateBelief)
         rospy.loginfo("* Listening for 'belief' messages in the background...")
 
 ###############################################################################
@@ -133,7 +140,7 @@ class mc:
         # Rule 1: Are all of the ROS nodes online?
         if(self.beliefs['nodesOnline'] == 0):
             # Try to fix downed nodes.
-            rospy.loginfo("** Fixing nodes...")
+            rospy.logwarn("** One or more of my nodes are down!")
             self.currentTask = fixNodes()
             return
 
@@ -141,7 +148,7 @@ class mc:
         # Rule 2: Is the camera calibrated?
         if(self.beliefs['cameraCalibrated'] == 0):
             # Calibrate the camera.
-            rospy.loginfo("** Calibrating camera...")
+            rospy.logwarn("** My camera is not calibrated!")
             self.currentTask = calibrateCamera()
             return
 
@@ -149,7 +156,7 @@ class mc:
         # Rule 3: Has the turtlebot crashed into something?
         if(self.beliefs['crashed'] == 1):
             # Try to reorient the turtlebot.
-            rospy.loginfo("** Handling crash...")
+            rospy.logwarn("** I crashed into something!")
             self.currentTask = handleCrash()
             return
 
@@ -157,7 +164,7 @@ class mc:
         # Rule 4: Has the target been located?
         if(self.beliefs['targetLocated'] == 0):
             # Calibrate the camera.
-            rospy.loginfo("** Locating target...")
+            rospy.logwarn("** I can't see the target!")
             self.currentTask = locateTarget()
             return
 
@@ -165,7 +172,7 @@ class mc:
         # Rule 5: Is the target in the centre of the camera?
         if(self.beliefs['targetCentred'] == 0):
             # Calibrate the camera.
-            rospy.loginfo("** Centering target...")
+            rospy.logwarn("** The target is not in the centre of my camera!")
             self.currentTask = centreTarget()
             return
 
@@ -173,23 +180,23 @@ class mc:
         # Rule 6: Is the turtlebot at the target?
         if(self.beliefs['atTarget'] == 0):
             # Drive to the target.
-            rospy.loginfo("** Approaching target...")
+            rospy.logwarn("** I'm not at the target yet!")
             self.currentTask = gotoTarget()
             return
 
         #######################################################################
         # Rule 7: If everything is OK then grasp the target.
         else:
-            rospy.loginfo("** Grasping target...")
+            rospy.loginfo("** I'm going to try to grasp the target!")
             self.currentTask = graspTarget()
 
 ###############################################################################
 
     def act(self):
         """Carry out the next task."""
-        rospy.loginfo("* Taking action...")
+        rospy.loginfo("*** Taking action...")
         self.currentTask.start()
-        rospy.loginfo("* Action complete.")
+        rospy.loginfo("*** Action complete.")
 
 ###############################################################################
 
@@ -204,6 +211,3 @@ if __name__ == "__main__":
 
     # Launch mc logic.
     m.launch()
-
-    # Keep the node alive
-    rospy.spin()

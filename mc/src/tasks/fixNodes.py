@@ -9,6 +9,7 @@ import rospy
 
 # Custom modules
 from task import task
+from mc.msg import belief_msg
 
 ###############################################################################
 
@@ -19,4 +20,6 @@ class fixNodes(task):
 
     def task(self, statusServices=[]):
         """Make sure all nodes are up and running."""
-        rospy.loginfo("* Fixing nodes...")
+        pub = rospy.Publisher('belief_nodesOnline', belief_msg)
+        pub.publish(belief_msg('nodesOnline', 1))
+        rospy.loginfo("**** Nodes fixed.")
