@@ -1,0 +1,10 @@
+(cl:defpackage mc-srv
+  (:use )
+  (:export
+   "UPDATEBELIEF"
+   "<UPDATEBELIEF-REQUEST>"
+   "UPDATEBELIEF-REQUEST"
+   "<UPDATEBELIEF-RESPONSE>"
+   "UPDATEBELIEF-RESPONSE"
+  ))
+

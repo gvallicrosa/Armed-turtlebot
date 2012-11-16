@@ -52,7 +52,7 @@ from tasks.locateTarget import locateTarget
 from tasks.centreTarget import centreTarget
 from tasks.gotoTarget import gotoTarget
 from tasks.graspTarget import graspTarget
-from mc.msg import belief_msg
+from mc.srv import updateBelief
 
 class mc:
     """Mission control class, based on hybrid BDI architecture."""
@@ -61,7 +61,7 @@ class mc:
 
     def __init__(self):
         """Initialize local varaiables etc."""
-        rospy.loginfo("* Initializing mission control node...")
+        rospy.loginfo("MC: Initializing mission control node...")
 
         self.beliefs = {
                         'targetLocated': 0,
@@ -79,10 +79,10 @@ class mc:
 
     def launch(self):
         """Launch the mission control logic."""
-        rospy.loginfo("* Launching mission control logic...")
+        rospy.loginfo("MC: Launching mission control logic...")
 
-        # 1. Continuously update beliefs
-        self.listen()
+        # 1. Start belief-update service
+        rospy.Service('updateBelief', updateBelief, self.updateBeliefHandler)
 
         # Loop until the mission is completed or until an error occurs.
         while(not rospy.is_shutdown()):
@@ -97,38 +97,26 @@ class mc:
             if(self.beliefs['targetGrasped'] == 1):
                 break
 
-        rospy.loginfo("* MIssion complete!")
+        rospy.loginfo("MC: MIssion complete!")
 
 ###############################################################################
 
-    def listen(self):
-        """Listen for changes in beliefs."""
-        rospy.Subscriber("belief_crashed", belief_msg, self.updateBelief)
-        rospy.Subscriber("belief_nodesOnline", belief_msg, self.updateBelief)
-        rospy.Subscriber("belief_cameraCalibrated", belief_msg, self.updateBelief)
-        rospy.Subscriber("belief_targetLocated", belief_msg, self.updateBelief)
-        rospy.Subscriber("belief_targetCentred", belief_msg, self.updateBelief)
-        rospy.Subscriber("belief_atTarget", belief_msg, self.updateBelief)
-        rospy.Subscriber("belief_targetGrasped", belief_msg, self.updateBelief)
-        rospy.loginfo("* Listening for 'belief' messages in the background...")
-
-###############################################################################
-
-    def updateBelief(self, msg):
+    def updateBeliefHandler(self, msg):
         belief = msg.belief
         value = msg.value
         # Has the belief changed?
         if self.beliefs[belief] != value:
             # Update our records.
             self.beliefs[belief] = value
-            rospy.loginfo("* Updated belief: '" + str(belief) + "' = " + str(value))
+            rospy.loginfo("MC: Updated belief: '" + str(belief) + "' = " + str(value))
+        return []
 
 ###############################################################################
 
     def deliberate(self):
         """ Use the current values in self.beliefs to decide which
             task to perform next."""
-        rospy.loginfo("* Deliberating...")
+        rospy.loginfo("MC: Deliberating...")
 
         # The following list of rules are ordered by importance.
         # I.e. for any rule to be applied, all of the rules above
@@ -140,7 +128,7 @@ class mc:
         # Rule 1: Are all of the ROS nodes online?
         if(self.beliefs['nodesOnline'] == 0):
             # Try to fix downed nodes.
-            rospy.logwarn("** One or more of my nodes are down!")
+            rospy.logwarn("MC: One or more of my nodes are down!")
             self.currentTask = fixNodes()
             return
 
@@ -148,7 +136,7 @@ class mc:
         # Rule 2: Is the camera calibrated?
         if(self.beliefs['cameraCalibrated'] == 0):
             # Calibrate the camera.
-            rospy.logwarn("** My camera is not calibrated!")
+            rospy.logwarn("MC: My camera is not calibrated!")
             self.currentTask = calibrateCamera()
             return
 
@@ -156,7 +144,7 @@ class mc:
         # Rule 3: Has the turtlebot crashed into something?
         if(self.beliefs['crashed'] == 1):
             # Try to reorient the turtlebot.
-            rospy.logwarn("** I crashed into something!")
+            rospy.logwarn("MC: I crashed into something!")
             self.currentTask = handleCrash()
             return
 
@@ -164,7 +152,7 @@ class mc:
         # Rule 4: Has the target been located?
         if(self.beliefs['targetLocated'] == 0):
             # Calibrate the camera.
-            rospy.logwarn("** I can't see the target!")
+            rospy.logwarn("MC: I can't see the target!")
             self.currentTask = locateTarget()
             return
 
@@ -172,7 +160,7 @@ class mc:
         # Rule 5: Is the target in the centre of the camera?
         if(self.beliefs['targetCentred'] == 0):
             # Calibrate the camera.
-            rospy.logwarn("** The target is not in the centre of my camera!")
+            rospy.logwarn("MC: The target is not in the centre of my camera!")
             self.currentTask = centreTarget()
             return
 
@@ -180,23 +168,22 @@ class mc:
         # Rule 6: Is the turtlebot at the target?
         if(self.beliefs['atTarget'] == 0):
             # Drive to the target.
-            rospy.logwarn("** I'm not at the target yet!")
+            rospy.logwarn("MC: I'm not at the target yet!")
             self.currentTask = gotoTarget()
             return
 
         #######################################################################
         # Rule 7: If everything is OK then grasp the target.
         else:
-            rospy.loginfo("** I'm going to try to grasp the target!")
+            rospy.loginfo("MC: I'm going to try to grasp the target!")
             self.currentTask = graspTarget()
 
 ###############################################################################
 
     def act(self):
         """Carry out the next task."""
-        rospy.loginfo("*** Taking action...")
+        rospy.loginfo("MC: Starting task '" + str(self.currentTask.name) + "'...")
         self.currentTask.start()
-        rospy.loginfo("*** Action complete.")
 
 ###############################################################################
 

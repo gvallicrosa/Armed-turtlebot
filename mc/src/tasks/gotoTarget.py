@@ -9,18 +9,16 @@ import rospy
 
 # Custom modules
 from task import task
-from mc.msg import belief_msg
-
+from mc.srv import updateBelief
 ###############################################################################
 
 class gotoTarget(task):
+
+    name = "gotoTarget"
 
     def __init__(self):
         pass
 
     def task(self, statusServices=[]):
         """Approach the target."""
-        pub = rospy.Publisher('belief_atTarget', belief_msg)
-        pub.publish(belief_msg('atTarget', 1))
-        rospy.loginfo("**** I'm at the target!")
-
+        self.requestService(updateBelief, ("atTarget", 1))

@@ -9,17 +9,16 @@ import rospy
 
 # Custom modules
 from task import task
-from mc.msg import belief_msg
-
+from mc.srv import updateBelief
 ###############################################################################
 
 class calibrateCamera(task):
+
+    name = "calibrateCamera"
 
     def __init__(self):
         pass
 
     def task(self, statusServices=[]):
         """Calibrate the camera."""
-        pub = rospy.Publisher('belief_cameraCalibrated', belief_msg)
-        pub.publish(belief_msg('cameraCalibrated', 1))
-        rospy.loginfo("**** Camera calibrated.")
+        self.requestService(updateBelief, ("cameraCalibrated", 1))

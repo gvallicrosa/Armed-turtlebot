@@ -9,17 +9,16 @@ import rospy
 
 # Custom modules
 from task import task
-from mc.msg import belief_msg
-
+from mc.srv import updateBelief
 ###############################################################################
 
 class centreTarget(task):
+
+    name = "centreTarget"
 
     def __init__(self):
         pass
 
     def task(self, statusServices=[]):
         """Centre the target in the camera."""
-        pub = rospy.Publisher('belief_targetCentred', belief_msg)
-        pub.publish(belief_msg('targetCentred', 1))
-        rospy.loginfo("**** Target centred!")
+        self.requestService(updateBelief, ("targetCentred", 1))

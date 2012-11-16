@@ -9,17 +9,16 @@ import rospy
 
 # Custom modules
 from task import task
-from mc.msg import belief_msg
-
+from mc.srv import updateBelief
 ###############################################################################
 
 class graspTarget(task):
+
+    name = "graspTarget"
 
     def __init__(self):
         pass
 
     def task(self, statusServices=[]):
         """Grasp the target."""
-        pub = rospy.Publisher('belief_targetGrasped', belief_msg)
-        pub.publish(belief_msg('targetGrasped', 1))
-        rospy.loginfo("**** I grasped the target!")
+        self.requestService(updateBelief, ("targetGrasped", 1))
