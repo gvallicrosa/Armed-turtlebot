@@ -1,0 +1,14 @@
+<package>
+  <description brief="motionControl">
+
+     motionControl
+
+  </description>
+  <author>user</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/motionControl</url>
+
+</package>
+
+

@@ -1,0 +1,21 @@
+
+(cl:in-package :asdf)
+
+(defsystem "motionControl-srv"
+  :depends-on (:roslisp-msg-protocol :roslisp-utils )
+  :components ((:file "_package")
+    (:file "motionControl_move" :depends-on ("_package_motionControl_move"))
+    (:file "_package_motionControl_move" :depends-on ("_package"))
+    (:file "motionControl_stop" :depends-on ("_package_motionControl_stop"))
+    (:file "_package_motionControl_stop" :depends-on ("_package"))
+    (:file "motionControl_left" :depends-on ("_package_motionControl_left"))
+    (:file "_package_motionControl_left" :depends-on ("_package"))
+    (:file "motionControl_backward" :depends-on ("_package_motionControl_backward"))
+    (:file "_package_motionControl_backward" :depends-on ("_package"))
+    (:file "motionControl_forward" :depends-on ("_package_motionControl_forward"))
+    (:file "_package_motionControl_forward" :depends-on ("_package"))
+    (:file "motionControl_right" :depends-on ("_package_motionControl_right"))
+    (:file "_package_motionControl_right" :depends-on ("_package"))
+    (:file "motionControl_timedMove" :depends-on ("_package_motionControl_timedMove"))
+    (:file "_package_motionControl_timedMove" :depends-on ("_package"))
+  ))
