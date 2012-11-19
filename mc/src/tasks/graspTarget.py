@@ -11,6 +11,7 @@ import rospy
 from task import task
 from mc.srv import mc_updateBelief
 from mc.srv import vs_graspTarget
+from std_msgs.msg import Int8
 ###############################################################################
 
 class graspTarget(task):
@@ -24,7 +25,7 @@ class graspTarget(task):
     ###########################################################################
 
     def targetGrasped(self, msg):
-        self.grasped = msg
+        self.grasped = msg.data
 
     ###########################################################################
 
@@ -36,7 +37,9 @@ class graspTarget(task):
         rospy.Subscriber('vs_targetGrasped', Int8, self.targetGrasped)
 
         # Start the visual servoing.
-        self.requestService(vs_graspTarget)
+        # UCOMMENT THE FOLLOWING LINE WHEN THE SERVICE IS IMPLEMENTED
+        # OTHERWISE THE TASK WILL WAIT FOREVER
+        ##self.requestService(vs_graspTarget)
 
         # Tell mission control the target has been grasped.
-        self.requestService(mc_updateBelief, ("targetGrasped", grasped))
+        self.requestService(mc_updateBelief, ("targetGrasped", int(self.grasped)))
