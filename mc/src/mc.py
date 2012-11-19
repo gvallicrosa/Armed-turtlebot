@@ -124,11 +124,11 @@ class mc:
 
         #######################################################################
         # Rule 1: Are all of the ROS nodes online?
-        if(self.beliefs['nodesOnline'] == 0):
-            # Try to fix downed nodes.
-            rospy.logwarn("MC: One or more of my nodes are down!")
-            self.currentTask = fixNodes()
-            return
+        ##if(self.beliefs['nodesOnline'] == 0):
+        ##    # Try to fix downed nodes.
+        ##    rospy.logwarn("MC: One or more of my nodes are down!")
+        ##    self.currentTask = fixNodes()
+        ##    return
 
         #######################################################################
         # Rule 2: Is the camera calibrated?
