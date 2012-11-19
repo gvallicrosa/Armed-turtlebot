@@ -21,14 +21,14 @@ class locateTarget(task):
     def __init__(self):
         # Assume that we can't see the target.
         self.located = 0
-    
-    ###########################################################################
 
+    ###########################################################################
+   
     def targetLocated(self, msg):
         self.located = 1
 
     ###########################################################################
-    
+   
     def task(self, statusServices=[]):
         """Locate the target."""
 
@@ -36,8 +36,8 @@ class locateTarget(task):
         while(self.located == 0):
 
             # Listen if the target has been located. (y/n)
-            # This topic must be puplished by the camera node.
-            rospy.Subscriber('camera_targetLocated', Int8, self.targetLocated)
+            # This topic must be published by the camera node.
+            rospy.Subscriber('camera_targetLocated', Int8, self.targetLocated)           
 
             # Rotate the turtlebot
             self.requestService(motionControl_move, (0.0, 0.1))

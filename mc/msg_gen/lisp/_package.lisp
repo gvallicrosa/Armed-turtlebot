@@ -3,5 +3,7 @@
   (:export
    "<BELIEF_MSG>"
    "BELIEF_MSG"
+   "<TURTLEBOTSENSORSTATE>"
+   "TURTLEBOTSENSORSTATE"
   ))
 

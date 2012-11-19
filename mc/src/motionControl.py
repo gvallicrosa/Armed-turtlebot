@@ -5,9 +5,9 @@ import time
 
 # ROS Libraries
 import roslib
-roslib.load_manifest('motionControl')
 import rospy
 from geometry_msgs.msg import Twist
+from mc.msg import TurtlebotSensorState
 
 # Mission Control Libraries
 from mc.srv import motionControl_move
@@ -25,9 +25,32 @@ class motionControl:
 
     ############################################################################
 
+    def requestService(self, service, params=None):
+        serviceName = service.__name__
+        rospy.wait_for_service(serviceName)
+        try:
+            rq = rospy.ServiceProxy(serviceName, service)
+            rq(*params)  # Expand the 'params' tuple into an argument list.
+        except rospy.ServiceException:
+            rospy.logwarn("Service call failed")
+
+    ############################################################################
+
+    def processSensing(self, TurtlebotSensorState):
+        """Callback function responding to turtlebot sensor data."""
+
+        # Has the turtlebot crashed?
+        crashed = TurtlebotSensorState.bumps_wheeldrops
+        if(crashed == 1):
+            self.requestService('mc_updateBelief', ('crashed', 1))
+
+    ############################################################################
+
     def launchServices(self):
+        """Start services and subscribers"""
         rospy.Service('motionControl_move', motionControl_move, self.move)
         rospy.Service('motionControl_timedMove', motionControl_timedMove, self.timedMove)
+        rospy.Subscriber('/turtlebot_node/sensor_state', TurtlebotSensorState, self.processSensing)
         rospy.spin()
 
     ############################################################################
