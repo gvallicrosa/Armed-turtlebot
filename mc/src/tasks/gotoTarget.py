@@ -33,7 +33,7 @@ class gotoTarget(task):
         # Are we at the target?
         # The camera must publish this topic.
         rospy.Subscriber('camera_atTarget', Int8, self.callback)
-        
+
         if(self.atTarget):
             # If we are at the target then update belief.
             rospy.loginfo('gotoTarget: Arrived at target.')
