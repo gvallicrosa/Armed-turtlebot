@@ -49,10 +49,9 @@ from tasks.fixNodes import fixNodes
 from tasks.calibrateCamera import calibrateCamera
 from tasks.handleCrash import handleCrash
 from tasks.locateTarget import locateTarget
-from tasks.centreTarget import centreTarget
 from tasks.gotoTarget import gotoTarget
 from tasks.graspTarget import graspTarget
-from mc.srv import updateBelief
+from mc.srv import mc_updateBelief
 
 class mc:
     """Mission control class, based on hybrid BDI architecture."""
@@ -65,7 +64,6 @@ class mc:
 
         self.beliefs = {
                         'targetLocated': 0,
-                        'targetCentred': 0,
                         'atTarget': 0,
                         'crashed': 0,
                         'cameraCalibrated': 0,
@@ -82,7 +80,7 @@ class mc:
         rospy.loginfo("MC: Launching mission control logic...")
 
         # 1. Start belief-update service
-        rospy.Service('updateBelief', updateBelief, self.updateBeliefHandler)
+        rospy.Service('mc_updateBelief', mc_updateBelief, self.updateBeliefHandler)
 
         # Loop until the mission is completed or until an error occurs.
         while(not rospy.is_shutdown()):
@@ -157,15 +155,7 @@ class mc:
             return
 
         #######################################################################
-        # Rule 5: Is the target in the centre of the camera?
-        if(self.beliefs['targetCentred'] == 0):
-            # Calibrate the camera.
-            rospy.logwarn("MC: The target is not in the centre of my camera!")
-            self.currentTask = centreTarget()
-            return
-
-        #######################################################################
-        # Rule 6: Is the turtlebot at the target?
+        # Rule 5: Is the turtlebot at the target?
         if(self.beliefs['atTarget'] == 0):
             # Drive to the target.
             rospy.logwarn("MC: I'm not at the target yet!")
@@ -173,7 +163,7 @@ class mc:
             return
 
         #######################################################################
-        # Rule 7: If everything is OK then grasp the target.
+        # Rule 6: If everything is OK then grasp the target.
         else:
             rospy.loginfo("MC: I'm going to try to grasp the target!")
             self.currentTask = graspTarget()

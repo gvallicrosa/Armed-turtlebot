@@ -1,7 +1,7 @@
 ; Auto-generated. Do not edit!
 
 
-(cl:in-package motionControl-srv)
+(cl:in-package mc-srv)
 
 
 ;//! \htmlinclude motionControl_move-request.msg.html
@@ -25,16 +25,16 @@
 (cl:defmethod cl:initialize-instance :after ((m <motionControl_move-request>) cl:&rest args)
   (cl:declare (cl:ignorable args))
   (cl:unless (cl:typep m 'motionControl_move-request)
-    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name motionControl-srv:<motionControl_move-request> is deprecated: use motionControl-srv:motionControl_move-request instead.")))
+    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name mc-srv:<motionControl_move-request> is deprecated: use mc-srv:motionControl_move-request instead.")))
 
 (cl:ensure-generic-function 'linear-val :lambda-list '(m))
 (cl:defmethod linear-val ((m <motionControl_move-request>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader motionControl-srv:linear-val is deprecated.  Use motionControl-srv:linear instead.")
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader mc-srv:linear-val is deprecated.  Use mc-srv:linear instead.")
   (linear m))
 
 (cl:ensure-generic-function 'angular-val :lambda-list '(m))
 (cl:defmethod angular-val ((m <motionControl_move-request>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader motionControl-srv:angular-val is deprecated.  Use motionControl-srv:angular instead.")
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader mc-srv:angular-val is deprecated.  Use mc-srv:angular instead.")
   (angular m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <motionControl_move-request>) ostream)
   "Serializes a message object of type '<motionControl_move-request>"
@@ -83,10 +83,10 @@
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<motionControl_move-request>)))
   "Returns string type for a service object of type '<motionControl_move-request>"
-  "motionControl/motionControl_moveRequest")
+  "mc/motionControl_moveRequest")
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql 'motionControl_move-request)))
   "Returns string type for a service object of type 'motionControl_move-request"
-  "motionControl/motionControl_moveRequest")
+  "mc/motionControl_moveRequest")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<motionControl_move-request>)))
   "Returns md5sum for a message object of type '<motionControl_move-request>"
   "144a16e4d6b53a0dbadc2e617460a173")
@@ -122,7 +122,7 @@
 (cl:defmethod cl:initialize-instance :after ((m <motionControl_move-response>) cl:&rest args)
   (cl:declare (cl:ignorable args))
   (cl:unless (cl:typep m 'motionControl_move-response)
-    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name motionControl-srv:<motionControl_move-response> is deprecated: use motionControl-srv:motionControl_move-response instead.")))
+    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name mc-srv:<motionControl_move-response> is deprecated: use mc-srv:motionControl_move-response instead.")))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <motionControl_move-response>) ostream)
   "Serializes a message object of type '<motionControl_move-response>"
 )
@@ -132,10 +132,10 @@
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<motionControl_move-response>)))
   "Returns string type for a service object of type '<motionControl_move-response>"
-  "motionControl/motionControl_moveResponse")
+  "mc/motionControl_moveResponse")
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql 'motionControl_move-response)))
   "Returns string type for a service object of type 'motionControl_move-response"
-  "motionControl/motionControl_moveResponse")
+  "mc/motionControl_moveResponse")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<motionControl_move-response>)))
   "Returns md5sum for a message object of type '<motionControl_move-response>"
   "144a16e4d6b53a0dbadc2e617460a173")
@@ -161,4 +161,4 @@
   'motionControl_move-response)
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql 'motionControl_move)))
   "Returns string type for a service object of type '<motionControl_move>"
-  "motionControl/motionControl_move")
+  "mc/motionControl_move")

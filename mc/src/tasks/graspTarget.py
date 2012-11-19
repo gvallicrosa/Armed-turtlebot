@@ -9,7 +9,7 @@ import rospy
 
 # Custom modules
 from task import task
-from mc.srv import updateBelief
+from mc.srv import mc_updateBelief
 ###############################################################################
 
 class graspTarget(task):
@@ -21,4 +21,4 @@ class graspTarget(task):
 
     def task(self, statusServices=[]):
         """Grasp the target."""
-        self.requestService(updateBelief, ("targetGrasped", 1))
+        self.requestService(mc_updateBelief, ("targetGrasped", 1))

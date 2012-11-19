@@ -9,7 +9,7 @@ import rospy
 
 # Custom modules
 from task import task
-from mc.srv import updateBelief
+from mc.srv import mc_updateBelief
 ###############################################################################
 
 class gotoTarget(task):
@@ -21,4 +21,4 @@ class gotoTarget(task):
 
     def task(self, statusServices=[]):
         """Approach the target."""
-        self.requestService(updateBelief, ("atTarget", 1))
+        self.requestService(mc_updateBelief, ("atTarget", 1))

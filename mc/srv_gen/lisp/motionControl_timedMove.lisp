@@ -1,7 +1,7 @@
 ; Auto-generated. Do not edit!
 
 
-(cl:in-package motionControl-srv)
+(cl:in-package mc-srv)
 
 
 ;//! \htmlinclude motionControl_timedMove-request.msg.html
@@ -30,21 +30,21 @@
 (cl:defmethod cl:initialize-instance :after ((m <motionControl_timedMove-request>) cl:&rest args)
   (cl:declare (cl:ignorable args))
   (cl:unless (cl:typep m 'motionControl_timedMove-request)
-    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name motionControl-srv:<motionControl_timedMove-request> is deprecated: use motionControl-srv:motionControl_timedMove-request instead.")))
+    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name mc-srv:<motionControl_timedMove-request> is deprecated: use mc-srv:motionControl_timedMove-request instead.")))
 
 (cl:ensure-generic-function 'linear-val :lambda-list '(m))
 (cl:defmethod linear-val ((m <motionControl_timedMove-request>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader motionControl-srv:linear-val is deprecated.  Use motionControl-srv:linear instead.")
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader mc-srv:linear-val is deprecated.  Use mc-srv:linear instead.")
   (linear m))
 
 (cl:ensure-generic-function 'angular-val :lambda-list '(m))
 (cl:defmethod angular-val ((m <motionControl_timedMove-request>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader motionControl-srv:angular-val is deprecated.  Use motionControl-srv:angular instead.")
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader mc-srv:angular-val is deprecated.  Use mc-srv:angular instead.")
   (angular m))
 
 (cl:ensure-generic-function 'duration-val :lambda-list '(m))
 (cl:defmethod duration-val ((m <motionControl_timedMove-request>))
-  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader motionControl-srv:duration-val is deprecated.  Use motionControl-srv:duration instead.")
+  (roslisp-msg-protocol:msg-deprecation-warning "Using old-style slot reader mc-srv:duration-val is deprecated.  Use mc-srv:duration instead.")
   (duration m))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <motionControl_timedMove-request>) ostream)
   "Serializes a message object of type '<motionControl_timedMove-request>"
@@ -112,10 +112,10 @@
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<motionControl_timedMove-request>)))
   "Returns string type for a service object of type '<motionControl_timedMove-request>"
-  "motionControl/motionControl_timedMoveRequest")
+  "mc/motionControl_timedMoveRequest")
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql 'motionControl_timedMove-request)))
   "Returns string type for a service object of type 'motionControl_timedMove-request"
-  "motionControl/motionControl_timedMoveRequest")
+  "mc/motionControl_timedMoveRequest")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<motionControl_timedMove-request>)))
   "Returns md5sum for a message object of type '<motionControl_timedMove-request>"
   "a5b60effd8a8dc7915aa4668eca10e0f")
@@ -153,7 +153,7 @@
 (cl:defmethod cl:initialize-instance :after ((m <motionControl_timedMove-response>) cl:&rest args)
   (cl:declare (cl:ignorable args))
   (cl:unless (cl:typep m 'motionControl_timedMove-response)
-    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name motionControl-srv:<motionControl_timedMove-response> is deprecated: use motionControl-srv:motionControl_timedMove-response instead.")))
+    (roslisp-msg-protocol:msg-deprecation-warning "using old message class name mc-srv:<motionControl_timedMove-response> is deprecated: use mc-srv:motionControl_timedMove-response instead.")))
 (cl:defmethod roslisp-msg-protocol:serialize ((msg <motionControl_timedMove-response>) ostream)
   "Serializes a message object of type '<motionControl_timedMove-response>"
 )
@@ -163,10 +163,10 @@
 )
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql '<motionControl_timedMove-response>)))
   "Returns string type for a service object of type '<motionControl_timedMove-response>"
-  "motionControl/motionControl_timedMoveResponse")
+  "mc/motionControl_timedMoveResponse")
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql 'motionControl_timedMove-response)))
   "Returns string type for a service object of type 'motionControl_timedMove-response"
-  "motionControl/motionControl_timedMoveResponse")
+  "mc/motionControl_timedMoveResponse")
 (cl:defmethod roslisp-msg-protocol:md5sum ((type (cl:eql '<motionControl_timedMove-response>)))
   "Returns md5sum for a message object of type '<motionControl_timedMove-response>"
   "a5b60effd8a8dc7915aa4668eca10e0f")
@@ -192,4 +192,4 @@
   'motionControl_timedMove-response)
 (cl:defmethod roslisp-msg-protocol:ros-datatype ((msg (cl:eql 'motionControl_timedMove)))
   "Returns string type for a service object of type '<motionControl_timedMove>"
-  "motionControl/motionControl_timedMove")
+  "mc/motionControl_timedMove")

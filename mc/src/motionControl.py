@@ -10,7 +10,8 @@ import rospy
 from geometry_msgs.msg import Twist
 
 # Mission Control Libraries
-from motionControl.srv import *
+from mc.srv import motionControl_move
+from mc.srv import motionControl_timedMove
 
 ################################################################################
 

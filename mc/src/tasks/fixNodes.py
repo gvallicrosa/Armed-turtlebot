@@ -7,7 +7,7 @@ import rospy
 
 # Custom modules
 from task import task
-from mc.srv import updateBelief
+from mc.srv import mc_updateBelief
 
 ###############################################################################
 
@@ -21,4 +21,4 @@ class fixNodes(task):
 
     def task(self, statusServices=[]):
         """Make sure all nodes are up and running."""
-        self.requestService(updateBelief, ("nodesOnline", 1))
+        self.requestService(mc_updateBelief, ("nodesOnline", 1))

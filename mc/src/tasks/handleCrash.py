@@ -20,3 +20,4 @@ class handleCrash(task):
     def task(self, statusServices=[]):
         """Handle crash scenario."""
         rospy.loginfo("* Handling crash...")
+        self.requestService(mc_updateBelief, ("crashed", 0))

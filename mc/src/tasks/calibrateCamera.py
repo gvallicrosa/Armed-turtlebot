@@ -9,7 +9,7 @@ import rospy
 
 # Custom modules
 from task import task
-from mc.srv import updateBelief
+from mc.srv import mc_updateBelief
 ###############################################################################
 
 class calibrateCamera(task):
@@ -21,4 +21,4 @@ class calibrateCamera(task):
 
     def task(self, statusServices=[]):
         """Calibrate the camera."""
-        self.requestService(updateBelief, ("cameraCalibrated", 1))
+        self.requestService(mc_updateBelief, ("cameraCalibrated", 1))
