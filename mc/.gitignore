@@ -1,0 +1,42 @@
+*.py[co]
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+
+#Translations
+*.mo
+
+#Backups
+*~
+
+
+
+#Generated
+*/srv_gen
+*/msg_gen
+*.swp
+tracking/Makefile
+*kdev4
+*/src/mc
+
+#Mr Developer
+.mr.developer.cfg
+
+
