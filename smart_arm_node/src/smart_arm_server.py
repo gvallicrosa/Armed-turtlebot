@@ -10,7 +10,7 @@ import rospy
 # ROS messages
 from std_msgs.msg import Float64, Bool, Float64MultiArray
 from dynamixel_msgs.msg import JointState, MotorStateList
-from smart_arm_node.msg import Float64List
+#from smart_arm_node.msg import Float64List
 from smart_arm_node.srv import SmartArmService, SmartArmServiceResponse
 import tf
 
