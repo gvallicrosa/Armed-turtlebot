@@ -1,0 +1,11 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+
+    <!-- smart_arm_controller -->
+    <include file="$(find smart_arm_controller)/launch/smart_arm.launch"> </include>
+    
+    <!-- smart_arm_server -->
+    <node name="smart_arm_server" pkg="smart_arm_node" type="smart_arm_server.py"> </node>
+    
+</launch>

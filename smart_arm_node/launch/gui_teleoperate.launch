@@ -1,0 +1,8 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+    <!-- smart_arm_controller and smart_arm_server -->
+    <include file="$(find smart_arm_node)/launch/minimal.launch"> </include> 
+    <!-- smart_arm_guir -->
+    <node name="smart_arm_gui" pkg="smart_arm_node" type="smart_arm_gui.py"> </node>
+</launch>
