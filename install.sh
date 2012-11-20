@@ -11,7 +11,7 @@ svn checkout http://ua-ros-pkg.googlecode.com/svn/trunk/arrg/crustcrawler_smart_
 rosdep install smart_arm_controller
 rosmake smart_arm_controller
 ## Patch the controller configuration
-
+cp Armed-turtlebot/smart_arm.yaml smart_arm_controller/config/smart_arm.yaml
 ## Change permissions to access the arm
 echo $'SUBSYSTEMS=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", GROUP="plugdev", MODE="0777"' > temp 
 sudo mv temp /etc/udev/rules.d/88-smart_arm.rules
