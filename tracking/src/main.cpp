@@ -16,6 +16,8 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
+const double PI = 3.141592653589793;
+
 int main(int argc, char **argv)
 {
   // ROS initialisation --------------
@@ -27,8 +29,11 @@ int main(int argc, char **argv)
   nodeh.getParam("/cameraID",  cameraid);
   // Transform broadcaster
   static tf::TransformBroadcaster br;
-  tf::Transform transform;
-  transform.setRotation( tf::Quaternion(0, 0, 0) );
+  tf::Transform cam2j4;
+  tf::Transform obj2cam;
+  cam2j4.setRotation( tf::Quaternion(0, 0, -PI/2) );
+  cam2j4.setOrigin(   tf::Vector3(0.047,0,-0.08) );
+  obj2cam.setRotation( tf::Quaternion(0, 0, 0) );
   
   // Image containters ---------------
   vpImage<unsigned char> vpI;
@@ -155,8 +160,9 @@ int main(int argc, char **argv)
     std::printf("Center in world:  (%f, %f, %f)\n\n", t[0], t[1], t[2]);
     vpDisplay::flush(vpI);
     
-    transform.setOrigin( tf::Vector3(t[0], t[1], t[2]) );
-    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "joint5", "obj_pos"));
+    obj2cam.setOrigin( tf::Vector3(t[0], t[1], t[2]) );
+    br.sendTransform(tf::StampedTransform(cam2j4,  ros::Time::now(), "joint4",  "cam_pos"));
+    br.sendTransform(tf::StampedTransform(obj2cam, ros::Time::now(), "cam_pos", "obj_pos"));
   }
   capture.release();
   return 0;

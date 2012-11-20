@@ -260,6 +260,8 @@ int main(int argc, char ** argv)
   ros::NodeHandle nodeh;
   std::string impath;
   nodeh.getParam("/impath", impath);
+  bool take_pict;
+  nodeh.getParam("/take_pictures", take_pict);
   
   ///////////////////////////////////////////
   //---------PARAMETERS--------------------
@@ -337,7 +339,18 @@ int main(int argc, char ** argv)
   //               opt_step, opt_lambda, opt_display, opt_click, opt_video, opt_video_image_path) == false) {
   //  return (-1);
   //}
-  opt_ppath = impath;
+  
+  // Take new pictures and calibrate
+  if (take_pict)
+  {
+    opt_video = true;
+    opt_video_image_path = impath;
+  }
+  // Use existing pictures
+  else
+  {
+    opt_ppath = impath;
+  }
   
   if(opt_video){
 #if (defined(VISP_HAVE_OPENCV) || defined(VISP_HAVE_V4L2) || defined(VISP_HAVE_DIRECTSHOW) || defined(VISP_HAVE_DC1394_2))
