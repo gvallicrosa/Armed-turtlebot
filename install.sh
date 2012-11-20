@@ -2,7 +2,7 @@
 
 # DEPENDENCIES
 ## Install dependencies
-sudo apt-get install pyqt4-dev-tools python-qt4 python-qt4-devqt4-dev-tools python-rosdep ros-fuerte-dynamixel-motor
+sudo apt-get install pyqt4-dev-tools python-qt4 python-qt4-dev qt4-dev-tools python-rosdep ros-fuerte-dynamixel-motor
 
 # SMART_ARM_CONTROLLER
 ## Move to ros folder and download the smart_arm_controller
@@ -28,7 +28,9 @@ make install
 
 # COMPILE GUI
 cd ../..
-sh smart_arm_node/src/ui/compile.sh
+cd smart_arm_node/src/ui
+sh compile.sh
+cd -
 
 # COMPILE THE WHOLE STACK
 rosdep install Armed-turtlebot
