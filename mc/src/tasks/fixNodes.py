@@ -3,20 +3,22 @@
 # Python modules
 
 # ROS modules
-import roslib
-#roslib.load_manifest('mc')
 import rospy
 
 # Custom modules
 from task import task
+from mc.srv import mc_updateBelief
 
 ###############################################################################
 
+
 class fixNodes(task):
+
+    name = "fixNodes"
 
     def __init__(self):
         pass
 
     def task(self, statusServices=[]):
         """Make sure all nodes are up and running."""
-        rospy.loginfo("* Fixing nodes...")
+        self.requestService(mc_updateBelief, ("nodesOnline", 1))

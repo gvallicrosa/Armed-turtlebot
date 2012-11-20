@@ -9,14 +9,16 @@ import rospy
 
 # Custom modules
 from task import task
-
+from mc.srv import updateBelief
 ###############################################################################
 
-class fixNodes(task):
+class centreTarget(task):
+
+    name = "centreTarget"
 
     def __init__(self):
         pass
 
     def task(self, statusServices=[]):
-        """Make sure all nodes are up and running."""
-        rospy.loginfo("* Fixing nodes...")
+        """Centre the target in the camera."""
+        self.requestService(updateBelief, ("targetCentred", 1))
