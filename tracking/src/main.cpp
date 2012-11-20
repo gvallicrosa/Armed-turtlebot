@@ -16,6 +16,23 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
+std::vector<std::string>
+&split(const std::string &s, char delim, std::vector<std::string> &elems) 
+{
+  std::stringstream ss(s);
+  std::string item;
+  while(std::getline(ss, item, delim)) {
+    elems.push_back(item);
+  }
+  return elems;
+}
+
+std::vector<std::string> 
+split(const std::string &s, char delim) 
+{
+  std::vector<std::string> elems;
+  return split(s, delim, elems);
+}
 const double PI = 3.141592653589793;
 
 int main(int argc, char **argv)
@@ -23,10 +40,21 @@ int main(int argc, char **argv)
   // ROS initialisation --------------
   ros::init(argc, argv, "ball_tracking");
   ros::NodeHandle nodeh;
-  std::string calibfile;
+  std::string calibfile, circleString;
   int cameraid;
   nodeh.getParam("/calibfile", calibfile);
   nodeh.getParam("/cameraID",  cameraid);
+  nodeh.getParam("/circleInit", circleString);
+  unsigned int x[5];
+  unsigned int y[5];
+  std::vector<std::string> tokens = split(circleString, ',');
+  unsigned int N = tokens.size()/2;
+  for(int i = 0; i < N; ++i)
+  {
+    x[i] = atoi(tokens[2*i].c_str());
+    y[i] = atoi(tokens[2*i + 1].c_str());
+  }
+   
   // Transform broadcaster
   static tf::TransformBroadcaster br;
   tf::Transform cam2j4;
@@ -74,7 +102,11 @@ int main(int argc, char **argv)
   ellipse.setThresholdRobust(0.1); // default 0.2
   
   //Initialize the tracking and display ---------------
+    // ask user for input
   ellipse.initTracking(vpI);
+    // or use ros parameters
+//  ellipse.initTracking(vpI, N, x, y);
+
   //ellipse.setDisplay(vpMeSite::RANGE_RESULT) ; // uncomment to show search lines
   vpDisplay::flush(vpI);
   
@@ -119,8 +151,8 @@ int main(int argc, char **argv)
   vpDisplay::flush(vpI);
   
   // Strings to be displayed ---------------
-  char centerStr[50];
-  char realVals[50];
+  char centerStr[1024];
+  char realVals[1024];
   vpTranslationVector t;
   
   while( true )
@@ -130,7 +162,13 @@ int main(int argc, char **argv)
     vpDisplay::display(vpI);
     
     //Track the ellipse.
-    ellipse.track(vpI);
+    try
+      {ellipse.track(vpI);}
+    catch(...)
+      {
+        // do stuff with ROS
+        break;
+      }
     ellipse.display(vpI, vpColor::green) ;
     
     // ball has 3.42cm in radius
@@ -152,12 +190,10 @@ int main(int argc, char **argv)
     T.extract(t);
     pose.display(vpI, T, cam, 0.05, vpColor::cyan);
     
-    //std::sprintf(centerStr,"Center in pixels: (%f, %f), Radius in pixels: %f", IP[0].get_i(), IP[0].get_j(), rI);
-    //vpDisplay::displayCharString(vpI, vpImagePoint(20, 20), centerStr, vpColor::lightRed) ;
-    //std::sprintf(realVals,"Center in world:  (%f, %f, %f)", t[0], t[1], t[2]);
-    //vpDisplay::displayCharString(vpI, vpImagePoint(40, 20), realVals, vpColor::lightRed) ;
-    std::printf("Center in pixels: (%f, %f), Radius in pixels: %f\n", IP[0].get_i(), IP[0].get_j(), rI);
-    std::printf("Center in world:  (%f, %f, %f)\n\n", t[0], t[1], t[2]);
+    std::sprintf(centerStr,"Center in pixels: (%f, %f), Radius in pixels: %f", IP[0].get_i(), IP[0].get_j(), rI);
+    vpDisplay::displayCharString(vpI, vpImagePoint(20, 20), centerStr, vpColor::lightRed) ;
+    std::sprintf(realVals,"Center in world:  (%f, %f, %f)", t[0], t[1], t[2]);
+    vpDisplay::displayCharString(vpI, vpImagePoint(40, 20), realVals, vpColor::lightRed) ;
     vpDisplay::flush(vpI);
     
     obj2cam.setOrigin( tf::Vector3(t[0], t[1], t[2]) );
