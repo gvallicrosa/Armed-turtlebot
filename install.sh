@@ -13,7 +13,8 @@ rosmake smart_arm_controller
 ## Patch the controller configuration
 
 ## Change permissions to access the arm
-sudo echo $'SUBSYSTEMS=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", GROUP="plugdev", MODE="0777"' > /etc/udev/rules.d/88-smart_arm.rules
+echo $'SUBSYSTEMS=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", GROUP="plugdev", MODE="0777"' > temp 
+sudo mv temp /etc/udev/rules.d/88-smart_arm.rules
 sudo service udev restart
 sudo udevadm control --reload-rules
 
@@ -32,3 +33,6 @@ sh smart_arm_node/src/ui/compile.sh
 # COMPILE THE WHOLE STACK
 rosdep install Armed-turtlebot
 rosmake Armed-turtlebot
+
+echo Reconnect device.
+

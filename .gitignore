@@ -23,9 +23,15 @@ pip-log.txt
 #Translations
 *.mo
 
+#Backups
+*~
+
+
+
 #Generated
 */srv_gen
 tracking/Makefile
+*kdev4
 
 #Mr Developer
 .mr.developer.cfg
