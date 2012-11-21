@@ -22,7 +22,7 @@ class motionControl:
 
     def __init__(self):
         # Assume the turtlebot isn't in a crashed state.
-        self.crash = 0
+        self.crashed = 0
 
     ############################################################################
 

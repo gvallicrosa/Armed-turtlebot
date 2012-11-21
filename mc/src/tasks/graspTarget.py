@@ -23,12 +23,12 @@ class graspTarget(task):
     def __init__(self):
         # Assume that the target is not grasped.
         self.grasped = 0
-        5PointsString = ''
+        FivePointsString = ''
 
     ###########################################################################
 
     def update5PointsHandler(self, msg):
-        self.5PointsString = msg
+        self.FivePointsString = msg
 
     ###########################################################################
 
@@ -42,7 +42,7 @@ class graspTarget(task):
         os.system('roslaunch tracking tracker.launch')
         
         # Post string to ROS param server
-        rospy.set_param('circleInit', 5PointsString)
+        rospy.set_param('circleInit', FivePointsString)
         
         # Tell mission control the target has been grasped.
         self.requestService(mc_updateBelief, ("targetGrasped", int(self.grasped)))

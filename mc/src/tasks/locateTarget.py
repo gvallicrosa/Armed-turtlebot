@@ -7,6 +7,7 @@ import roslib
 #roslib.load_manifest('mc')
 import rospy
 from std_msgs.msg import Int8
+from std_msgs.msg import Float64
 
 # Custom modules
 from task import task
@@ -38,7 +39,7 @@ class locateTarget(task):
         while(self.located == 0):
 
             # Listen out for the radius of the ball.
-            rospy.Subscriber('/detection/radius', Float32, self.updateRadiusHandler)
+            rospy.Subscriber('/detection/radius', Float64, self.updateRadiusHandler)
 
             # Is the ball in the camera's field of view?
             if(self.measuredRadius != 0):

@@ -42,7 +42,7 @@ class gotoTarget(task):
             ###################################################################
 
             # Are we at the target yet?
-            if(self.measuredRadius = 10): # <-----|Value to be determined by experiment.|
+            if(self.measuredRadius == 10): # <-----|Value to be determined by experiment.|
                 self.atTarget = 1
 
             ###################################################################

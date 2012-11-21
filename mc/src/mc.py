@@ -43,7 +43,6 @@
 import roslib
 roslib.load_manifest('mc')
 import rospy
-from std_msgs import Float32
 
 # Custom modules
 from tasks.fixNodes import fixNodes
