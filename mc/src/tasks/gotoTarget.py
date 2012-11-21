@@ -22,23 +22,37 @@ class gotoTarget(task):
     def __init__(self):
         # Assume we are not at the target.
         self.atTarget = 0
+        self.measuredRadius = 0.0
+        self.physicalRadius = 2.16 # Actual ball radius in cm.
 
-    def callback(self, msg):
-        """Callback"""
-        self.atTarget = msg
+    def updateRadiusHandler(self, msg):
+        """Callback function for subscribes."""
+        self.measuredRadius = msg 
 
     def task(self, statusServices=[]):
         """Approach the target."""
 
-        # Are we at the target?
-        # The camera must publish this topic.
-        rospy.Subscriber('camera_atTarget', Int8, self.callback)
+        # Loop until we are at the target.
+        while(self.atTarget == 0):
 
-        if(self.atTarget):
-            # If we are at the target then update belief.
-            rospy.loginfo('gotoTarget: Arrived at target.')
-            self.requestService(mc_updateBelief, ("atTarget", 1))
-        else:
-            # Else move towards target.
-            self.requestService(motionControl_move, (-0.1, 0.0))
-            rospy.loginfo('gotoTarget: moving forwards.')
+            # What is the apparent radius of the ball?
+            # (Published by detection node)
+            rospy.Subscriber('/detection/radius', Float32, self.updateRadiusHandler)
+
+            ###################################################################
+
+            # Are we at the target yet?
+            if(self.measuredRadius = 10): # <-----|Value to be determined by experiment.|
+                self.atTarget = 1
+
+            ###################################################################
+
+            # If not at target then move forwards.
+            if(self.atTarget == 0):
+                self.requestService(motionControl_move, (-0.1, 0.0))
+                rospy.loginfo('gotoTarget: moving forwards.')
+
+        # We are at the target - update belief.
+        rospy.loginfo('gotoTarget: Arrived at target.')
+        self.requestService(mc_updateBelief, ("atTarget", 1))
+            

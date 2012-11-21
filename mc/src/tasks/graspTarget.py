@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Python modules
+import os
 
 # ROS modules
 import roslib
@@ -11,7 +12,8 @@ import rospy
 from task import task
 from mc.srv import mc_updateBelief
 from mc.srv import vs_graspTarget
-from std_msgs.msg import Int8
+from std_msgs.msg import String
+
 ###############################################################################
 
 class graspTarget(task):
@@ -19,27 +21,25 @@ class graspTarget(task):
     name = "graspTarget"
 
     def __init__(self):
-        # Assume that we can't see the target.
+        # Assume that the target is not grasped.
         self.grasped = 0
+        5PointsString = ''
 
     ###########################################################################
 
-    def targetGrasped(self, msg):
-        self.grasped = msg.data
+    def update5PointsHandler(self, msg):
+        self.5PointsString = msg
 
     ###########################################################################
 
     def task(self, statusServices=[]):
         """Grasp the target."""
 
-        # Listen if the target has been located. (y/n)
-        # This topic must be published by the camera node.
-        rospy.Subscriber('vs_targetGrasped', Int8, self.targetGrasped)
+        # Listen to the detection node - get the radius of the ball and 5-points string.
+        rospy.Subscriber('/detection/5Points', String, self.update5PointsHandler)
 
         # Start the visual servoing.
-        # UCOMMENT THE FOLLOWING LINE WHEN THE SERVICE IS IMPLEMENTED
-        # OTHERWISE THE TASK WILL WAIT FOREVER
-        ##self.requestService(vs_graspTarget)
+        os.system('roslaunch Armed-Turtlebot vispnode ' + str(self.5PointString)) # <----------|Find actual launch command|
 
         # Tell mission control the target has been grasped.
         self.requestService(mc_updateBelief, ("targetGrasped", int(self.grasped)))

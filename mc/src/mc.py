@@ -43,6 +43,7 @@
 import roslib
 roslib.load_manifest('mc')
 import rospy
+from std_msgs import Float32
 
 # Custom modules
 from tasks.fixNodes import fixNodes
@@ -63,12 +64,12 @@ class mc:
         rospy.loginfo("MC: Initializing mission control node...")
 
         self.beliefs = {
-                        'nodesOnline': 1,
-                        'cameraCalibrated': 1,
+                        'nodesOnline': 1, # Assume nodes are OK.
+                        'cameraCalibrated': 1, # Assume camera is calibrate.
                         'crashed': 0,
                         'targetLocated': 0,
                         'atTarget': 0,
-                        'targetReachable': 1,
+                        'targetReachable': 1, # Assume target is reachable.
                         'targetGrasped': 0
                         }
 
@@ -80,7 +81,7 @@ class mc:
         """Launch the mission control logic."""
         rospy.loginfo("MC: Launching mission control logic...")
 
-        # 1. Start belief-update service
+        # 1. Provide service for updating beliefs. 
         rospy.Service('mc_updateBelief', mc_updateBelief, self.updateBeliefHandler)
 
         # Loop until the mission is completed or until an error occurs.
@@ -101,6 +102,7 @@ class mc:
 ###############################################################################
 
     def updateBeliefHandler(self, msg):
+        """Callback function for the updateBelief service."""
         belief = msg.belief
         value = msg.value
         # Has the belief changed?
