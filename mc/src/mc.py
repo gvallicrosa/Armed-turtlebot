@@ -63,11 +63,12 @@ class mc:
         rospy.loginfo("MC: Initializing mission control node...")
 
         self.beliefs = {
+                        'nodesOnline': 1,
+                        'cameraCalibrated': 1,
+                        'crashed': 0,
                         'targetLocated': 0,
                         'atTarget': 0,
-                        'crashed': 0,
-                        'cameraCalibrated': 0,
-                        'nodesOnline': 0,
+                        'targetReachable': 1,
                         'targetGrasped': 0
                         }
 
@@ -131,6 +132,14 @@ class mc:
         ##    return
 
         #######################################################################
+        # Rule 1: Are the nodes online?
+        if(self.beliefs['nodesOnline'] == 0):
+            # Calibrate the camera.
+            rospy.logwarn("MC: One of the nodes is down!")
+            self.currentTask = fixNodes()
+            return
+
+        #######################################################################
         # Rule 2: Is the camera calibrated?
         if(self.beliefs['cameraCalibrated'] == 0):
             # Calibrate the camera.
@@ -163,7 +172,13 @@ class mc:
             return
 
         #######################################################################
-        # Rule 6: If everything is OK then grasp the target.
+        # Rule 6: Is the target reachable?
+        if(self.beliefs['targetReachable'] == 0):
+            rospy.loginfo("MC: I can't reach the target from here!")
+            self.currentTask = makeReachable()
+
+        #######################################################################
+        # Rule 7: If everything is OK then grasp the target.
         if(self.beliefs['targetGrasped'] == 0):
             rospy.loginfo("MC: I'm going to try to grasp the target!")
             self.currentTask = graspTarget()
