@@ -43,7 +43,11 @@ class locateTarget(task):
             # Is the ball in the camera's field of view?
             if(self.measuredRadius != 0):
                self.located = 1 
+               
+               # Listen for the centroid co-ordinates and rotate to centre the ball
+               # in the field of view of the camera.
             
+            # Have we found the ball yet?
             if(self.located == 0):
                 # Rotate the turtlebot
                 self.requestService(motionControl_move, (0.0, 0.1))
