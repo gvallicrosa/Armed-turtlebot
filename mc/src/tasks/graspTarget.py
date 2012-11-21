@@ -39,7 +39,10 @@ class graspTarget(task):
         rospy.Subscriber('/detection/5Points', String, self.update5PointsHandler)
 
         # Start the visual servoing.
-        os.system('roslaunch Armed-Turtlebot vispnode ' + str(self.5PointString)) # <----------|Find actual launch command|
-
+        os.system('roslaunch tracking tracker.launch')
+        
+        # Post string to ROS param server
+        rospy.set_param('circleInit', 5PointsString)
+        
         # Tell mission control the target has been grasped.
         self.requestService(mc_updateBelief, ("targetGrasped", int(self.grasped)))
