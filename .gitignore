@@ -32,7 +32,8 @@ pip-log.txt
 */srv_gen
 tracking/Makefile
 *kdev4
-
+*smart_arm_node/src/smart_arm_node
+*smart_arm_node/src/ui/*.py
 
 #Mr Developer
 .mr.developer.cfg
