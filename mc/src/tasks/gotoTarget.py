@@ -7,6 +7,7 @@ import roslib
 #roslib.load_manifest('mc')
 import rospy
 from std_msgs.msg import Int8
+from std_msgs.msg import Float64
 
 # Custom modules
 from task import task
@@ -27,7 +28,7 @@ class gotoTarget(task):
 
     def updateRadiusHandler(self, msg):
         """Callback function for subscribes."""
-        self.measuredRadius = msg 
+        self.measuredRadius = msg.data 
 
     def task(self, statusServices=[]):
         """Approach the target."""
@@ -37,13 +38,15 @@ class gotoTarget(task):
 
             # What is the apparent radius of the ball?
             # (Published by detection node)
-            rospy.Subscriber('/detection/radius', Float32, self.updateRadiusHandler)
+            rospy.Subscriber('/detection/radius', Float64, self.updateRadiusHandler)
+            rospy.loginfo("gotoTarget: Measured target radius = " + str(self.measuredRadius))
 
             ###################################################################
 
             # Are we at the target yet?
-            if(self.measuredRadius == 10): # <-----|Value to be determined by experiment.|
+            if(self.measuredRadius > 10.0): # <-----|Value to be determined by experiment.|
                 self.atTarget = 1
+                rospy.loginfo("gotoTarget: Arrived at target (measured target radius = " + str(self.measuredRadius) + ").")
 
             ###################################################################
 
@@ -52,7 +55,5 @@ class gotoTarget(task):
                 self.requestService(motionControl_move, (-0.1, 0.0))
                 rospy.loginfo('gotoTarget: moving forwards.')
 
-        # We are at the target - update belief.
-        rospy.loginfo('gotoTarget: Arrived at target.')
+        # Update belief on MC
         self.requestService(mc_updateBelief, ("atTarget", 1))
-            

@@ -10,6 +10,7 @@ from geometry_msgs.msg import Twist
 from mc.msg import TurtlebotSensorState
 
 # Mission Control Libraries
+from mc.srv import mc_updateBelief
 from mc.srv import motionControl_move
 from mc.srv import motionControl_timedMove
 
@@ -44,14 +45,14 @@ class motionControl:
         crashed = TurtlebotSensorState.bumps_wheeldrops
         if(crashed == 1):
             # Tell mission control.
-            self.requestService('mc_updateBelief', ('crashed', 1))
+            self.requestService(mc_updateBelief, ('crashed', 1))
 
             # Prevent move() and timedMove() from moving the base.
             self.crashed = 1
 
         else:     
             # Tell mission control.
-            self.requestService('mc_updateBelief', ('crashed', 0))
+            self.requestService(mc_updateBelief, ('crashed', 0))
 
             # Enable move() and timedMove().
             self.crashed = 0

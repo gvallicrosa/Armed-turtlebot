@@ -22,13 +22,13 @@ class locateTarget(task):
     def __init__(self):
         # Assume that we can't see the target.
         self.located = 0
-        self.measuredRadius = 0
+        self.measuredRadius = 0.0
 
     ###########################################################################
         
     def updateRadiusHandler(self, msg):
         """Callback function for subscribes."""
-        self.measuredRadius = msg 
+        self.measuredRadius = msg.data 
 
     ###########################################################################
 
@@ -42,7 +42,7 @@ class locateTarget(task):
             rospy.Subscriber('/detection/radius', Float64, self.updateRadiusHandler)
 
             # Is the ball in the camera's field of view?
-            if(self.measuredRadius != 0):
+            if(self.measuredRadius > 0):
                self.located = 1 
                
                # Listen for the centroid co-ordinates and rotate to centre the ball

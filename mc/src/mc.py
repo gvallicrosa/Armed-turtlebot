@@ -184,6 +184,10 @@ class mc:
             rospy.loginfo("MC: I'm going to try to grasp the target!")
             self.currentTask = graspTarget()
 
+            # Assume success for now
+            self.beliefs['targetGrasped'] = 1
+
+
 ###############################################################################
 
     def act(self):
