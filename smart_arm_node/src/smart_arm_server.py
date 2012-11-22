@@ -56,7 +56,7 @@ def ask_server(req):
         ans = [arm.grab(),]
     elif req.what == 9:
         # position status
-        ans = arm.fkine(joints_curr)[:3,3]
+        ans = arm.fkine(joints_curr, True)[:3,3]
     else:
         # no valid request
         print 'no valid request\n'
@@ -81,21 +81,7 @@ def angle_wrap(a):
     
     
 ################################################################################
-def check_j1(msg):
-    check_joint(1,msg)
-def check_j2(msg):
-    check_joint(2,msg)
-def check_j3(msg):
-    check_joint(3,msg)
-def check_j4(msg):
-    check_joint(4,msg)
-def check_j5(msg):
-    check_joint(5,msg)
-    
-    
-    
-################################################################################
-def check_joint(i,msg):
+def check_joint(msg, i):
     '''
     Checks if a joint is still moving and also if the torque is too big and the
     movement should be stopped.
@@ -117,6 +103,9 @@ def check_joint(i,msg):
                            rospy.Time.now(),
                            child,
                            parent)
+    
+    # To GUI
+    pub_pos[i - 1].publish(Float64(joints_curr[i - 1]))
     
     # Check joint for overload (only hand)
     if joints_load[i-1] and i==5:
@@ -215,15 +204,15 @@ class Arm(object):
         self.links = links
         
     
-    
-    def fkine(self,qs):
+    # ARM INFO #################################################################
+    def fkine(self, qs, real=False):
         '''
         Returns the forward kinematics matrix for all joints
         '''
         assert len(qs)>=4
         val = eye(4)
         for i in range(4):
-            val = dot(val, self.links[i].tr(qs[i]))
+            val = dot(val, self.links[i].tr(qs[i], real))
         return val
 
 
@@ -302,28 +291,13 @@ class Arm(object):
             print 'Solution %s: ' % i, trans
             print 'Error: ', sqrt( sum( ( trans-array([x,y,z]) )**2 ) )
             print 'Joints: ', sols[i,0:4]
-                
-            ## Check solution with joint limits
-            for j in range(4):    # for all joints
-                sols[i,j] = angle_wrap(sols[i,j])
-                if not( min(qlims[j,:]) <= sols[i,j] <= max(qlims[j,:]) ):
-                    sols[i,4] = 1 # no valid solution
-                    print "Not in joint limits"
-                    break
         
-        print 'found %s solutions' % sum(sols[:,4]==0)
-        
-        # If more than one solution, take the nearest to curent one
-        valid = list()
-        for i in range(4):
-            if sols[i,4] == 0:
-                valid.append(sols[i,:4])
-#        ipdb.set_trace()
-        #TODO: check offset interaction here!!!!
-        return valid[0]
+        print 'found %s solutions in design space' % sum(sols[:,4]==0)
+        return sols
     
     
     
+    # ARM MOVEMENTS ############################################################
     def grab(self,auto=True):
         """
         Grabs or ungrabs depending on the joint state.
@@ -363,7 +337,7 @@ class Arm(object):
         Moves the specified joint "i" to the specified position "q".
         '''
         # Publish the movement to the joint
-        pub_move[i-1].publish(Float64(q+self.links[i-1].real))
+        pub_move[i-1].publish(Float64(q))#+self.links[i-1].real))
         
         # Wait until finish movement
         while sum(joints_move) > 0:
@@ -384,11 +358,38 @@ class Arm(object):
         Moves the arm to specified (x,y,z) position of the end effector, using
         the inverse kinematics solution.
         '''
-        qs = self.ikine(xyz)
-        return self.move_all(qs)
+        # Solutions in design space
+        sols = self.ikine(xyz)
+        for i in range(4):     # solution
+            for j in range(4): # joint
+                ## Convert to real space
+                sols[i, j] += self.links[j].real
+                sols[i, j] = angle_wrap(sols[i, j])
+                ## Check solution with joint limits
+                if not( min(qlims[j,:]) <= sols[i,j] <= max(qlims[j,:]) ):
+                    sols[i,4] = 1 # no valid solution
+                    print "Not in joint %s limits: %s" % (j, qlims[j,:])
+                    break
+        # Recheck number of solutions
+        print 'Solutions in real space: ', sum(sols[:,4]==0)
+        if sum(sols[:,4]==0) > 0:
+            reachable = True
+        else:
+            reachable = False
+        # If more than one solution, take the nearest to curent one
+        if reachable:
+            valid = list()
+            for i in [1,3,0,2]:
+                if sols[i,4] == 0:
+                    valid.append(sols[i,:4])
+    #        ipdb.set_trace()
+            #TODO: check offset interaction here!!!!
+            return self.move_all(valid[0])
+        else:
+            return 0
         
         
-        
+    # TF BROADCASTIGN ##########################################################
     def tf(self,i,q=0,pub=False):
         '''
         Gets the transformation from one joint. Also publishes the
@@ -447,14 +448,21 @@ if __name__ == '__main__':
     pub_j4 = rospy.Publisher("/wrist_roll_controller/command",     Float64)
     pub_j5 = rospy.Publisher("/right_finger_controller/command",   Float64)
     pub_move = [pub_j1, pub_j2, pub_j3, pub_j4, pub_j5]
+    ## To GUI
+    pos_j1 = rospy.Publisher("/arm_server/j1", Float64)
+    pos_j2 = rospy.Publisher("/arm_server/j2", Float64)
+    pos_j3 = rospy.Publisher("/arm_server/j3", Float64)
+    pos_j4 = rospy.Publisher("/arm_server/j4", Float64)
+    pos_j5 = rospy.Publisher("/arm_server/j5", Float64)
+    pub_pos = [pos_j1, pos_j2, pos_j3, pos_j4, pos_j5]
         
     # Subscribers
     ## From controller
-    stat_j1 = rospy.Subscriber('/shoulder_pan_controller/state',   JointState, check_j1)
-    stat_j2 = rospy.Subscriber('/shoulder_pitch_controller/state', JointState, check_j2)
-    stat_j3 = rospy.Subscriber('/elbow_flex_controller/state',     JointState, check_j3)
-    stat_j4 = rospy.Subscriber('/wrist_roll_controller/state',     JointState, check_j4)
-    stat_j5 = rospy.Subscriber('/right_finger_controller/state',   JointState, check_j5)
+    stat_j1 = rospy.Subscriber('/shoulder_pan_controller/state',   JointState, check_joint, 1)
+    stat_j2 = rospy.Subscriber('/shoulder_pitch_controller/state', JointState, check_joint, 2)
+    stat_j3 = rospy.Subscriber('/elbow_flex_controller/state',     JointState, check_joint, 3)
+    stat_j4 = rospy.Subscriber('/wrist_roll_controller/state',     JointState, check_joint, 4)
+    stat_j5 = rospy.Subscriber('/right_finger_controller/state',   JointState, check_joint, 5)
     
     # Transform broadcaster
     tfbr = tf.TransformBroadcaster()
