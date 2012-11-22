@@ -63,11 +63,12 @@ class mc:
         rospy.loginfo("MC: Initializing mission control node...")
 
         self.beliefs = {
+                        'nodesOnline': 1, # Assume nodes are OK.
+                        'cameraCalibrated': 1, # Assume camera is calibrate.
+                        'crashed': 0,
                         'targetLocated': 0,
                         'atTarget': 0,
-                        'crashed': 0,
-                        'cameraCalibrated': 0,
-                        'nodesOnline': 0,
+                        'targetReachable': 1, # Assume target is reachable.
                         'targetGrasped': 0
                         }
 
@@ -79,7 +80,7 @@ class mc:
         """Launch the mission control logic."""
         rospy.loginfo("MC: Launching mission control logic...")
 
-        # 1. Start belief-update service
+        # 1. Provide service for updating beliefs. 
         rospy.Service('mc_updateBelief', mc_updateBelief, self.updateBeliefHandler)
 
         # Loop until the mission is completed or until an error occurs.
@@ -100,6 +101,7 @@ class mc:
 ###############################################################################
 
     def updateBeliefHandler(self, msg):
+        """Callback function for the updateBelief service."""
         belief = msg.belief
         value = msg.value
         # Has the belief changed?
@@ -129,6 +131,14 @@ class mc:
         ##    rospy.logwarn("MC: One or more of my nodes are down!")
         ##    self.currentTask = fixNodes()
         ##    return
+
+        #######################################################################
+        # Rule 1: Are the nodes online?
+        if(self.beliefs['nodesOnline'] == 0):
+            # Calibrate the camera.
+            rospy.logwarn("MC: One of the nodes is down!")
+            self.currentTask = fixNodes()
+            return
 
         #######################################################################
         # Rule 2: Is the camera calibrated?
@@ -163,10 +173,20 @@ class mc:
             return
 
         #######################################################################
-        # Rule 6: If everything is OK then grasp the target.
+        # Rule 6: Is the target reachable?
+        if(self.beliefs['targetReachable'] == 0):
+            rospy.loginfo("MC: I can't reach the target from here!")
+            self.currentTask = makeReachable()
+
+        #######################################################################
+        # Rule 7: If everything is OK then grasp the target.
         if(self.beliefs['targetGrasped'] == 0):
             rospy.loginfo("MC: I'm going to try to grasp the target!")
             self.currentTask = graspTarget()
+
+            # Assume success for now
+            self.beliefs['targetGrasped'] = 1
+
 
 ###############################################################################
 

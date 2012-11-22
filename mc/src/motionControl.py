@@ -10,6 +10,7 @@ from geometry_msgs.msg import Twist
 from mc.msg import TurtlebotSensorState
 
 # Mission Control Libraries
+from mc.srv import mc_updateBelief
 from mc.srv import motionControl_move
 from mc.srv import motionControl_timedMove
 
@@ -21,7 +22,8 @@ class motionControl:
     pub_cmd_vel = rospy.Publisher('cmd_vel', Twist)
 
     def __init__(self):
-        pass
+        # Assume the turtlebot isn't in a crashed state.
+        self.crashed = 0
 
     ############################################################################
 
@@ -42,7 +44,18 @@ class motionControl:
         # Has the turtlebot crashed?
         crashed = TurtlebotSensorState.bumps_wheeldrops
         if(crashed == 1):
-            self.requestService('mc_updateBelief', ('crashed', 1))
+            # Tell mission control.
+            self.requestService(mc_updateBelief, ('crashed', 1))
+
+            # Prevent move() and timedMove() from moving the base.
+            self.crashed = 1
+
+        else:     
+            # Tell mission control.
+            self.requestService(mc_updateBelief, ('crashed', 0))
+
+            # Enable move() and timedMove().
+            self.crashed = 0
 
     ############################################################################
 
@@ -67,7 +80,14 @@ class motionControl:
         cmd_move.angular.x = 0.0
         cmd_move.angular.y = 0.0   
         cmd_move.angular.z = ang_speed 
-        self.pub_cmd_vel.publish(cmd_move)
+        
+        # If the turtlebot has crashed then disable forwards motion.
+        if(self.crashed == 1 and lin_speed > 0 and ang_speed == 0):
+            # TRUE: Display warning.
+            rospy.logwarn("motionControl: SAFEGUARD - crash detected - forwards motion disallowed.")
+        else:
+            # FALSE: Move.
+            self.pub_cmd_vel.publish(cmd_move)
    
    ############################################################################
 
