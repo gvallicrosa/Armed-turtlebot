@@ -16,6 +16,8 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 
+#include <omp.h>
+
 std::vector<std::string>
 &split(const std::string &s, char delim, std::vector<std::string> &elems) 
 {
@@ -114,7 +116,7 @@ int main(int argc, char **argv)
   vpCameraParameters cam;
   std::string xmlName = calibfile;
   vpXmlParserCamera xmlParser;
-  if( xmlParser.parse(cam, xmlName.c_str(), "LogitechC110", vpCameraParameters::perspectiveProjWithDistortion)  !=  vpXmlParserCamera::SEQUENCE_OK)
+  if( xmlParser.parse(cam, xmlName.c_str(), "LogitechC310", vpCameraParameters::perspectiveProjWithDistortion)  !=  vpXmlParserCamera::SEQUENCE_OK)
     std::cout << "Error reading the XML calibration data!" << std::endl;
   
   // Pose estimation ---------------
@@ -122,18 +124,19 @@ int main(int argc, char **argv)
   pose.clearPoint();
   vpPoint P[4];
   vpImagePoint IP[4];
-  double r = 0.034; // 3.4 cm
+  double r = 0.068/2;
+//  double r = 0.043/2;
   double rI = 1;    // pixel radius
   P[0].setWorldCoordinates(0, 0, 0);
-  P[1].setWorldCoordinates(-r, 0, 0);
-  P[2].setWorldCoordinates(0, -r, 0);
-  P[3].setWorldCoordinates(0, -r, 0); // dealing with a sphere
+  P[1].setWorldCoordinates(r, 0, 0);
+  P[2].setWorldCoordinates(0, r, 0);
+  P[3].setWorldCoordinates(0, r, 0); // dealing with a sphere
   
   rI = ellipse.getA();  // current pixel radius
   IP[0] = ellipse.getCenter();
   IP[1] = vpImagePoint( IP[0].get_i() + rI, IP[0].get_j() );
   IP[2] = vpImagePoint( IP[0].get_i(), IP[0].get_j() + rI);
-  IP[3] = vpImagePoint( IP[0].get_i(), IP[0].get_j() - rI);
+  IP[3] = vpImagePoint( IP[0].get_i(), IP[0].get_j() + rI);
   
   
   for(int i = 0; i < 4; i++)
@@ -155,9 +158,14 @@ int main(int argc, char **argv)
   char realVals[1024];
   vpTranslationVector t;
   
+  double fps = 30.f;
+  
   while( true )
   {
+    double t0 = omp_get_wtime();
     capture >> cvI;
+    if(cvI.empty())
+      break;
     vpImageConvert::convert(cvI, vpI);
     vpDisplay::display(vpI);
     
@@ -190,11 +198,14 @@ int main(int argc, char **argv)
     T.extract(t);
     pose.display(vpI, T, cam, 0.05, vpColor::cyan);
     
-    std::sprintf(centerStr,"Center in pixels: (%f, %f), Radius in pixels: %f", IP[0].get_i(), IP[0].get_j(), rI);
+    sprintf(centerStr,"Center in pixels: (%f, %f), Radius in pixels: %f", IP[0].get_i(), IP[0].get_j(), rI);
     vpDisplay::displayCharString(vpI, vpImagePoint(20, 20), centerStr, vpColor::lightRed) ;
-    std::sprintf(realVals,"Center in world:  (%f, %f, %f)", t[0], t[1], t[2]);
+    sprintf(realVals,"Center in world:  (%f, %f, %f), FPS: %lf, distance = %lf", t[0], t[1], t[2], fps, cv::sqrt(t[0]*t[0] 
+    + t[1]*t[1] + t[2]*t[2]) );
     vpDisplay::displayCharString(vpI, vpImagePoint(40, 20), realVals, vpColor::lightRed) ;
+    
     vpDisplay::flush(vpI);
+    fps = 1/( omp_get_wtime() - t0 );
     
     obj2cam.setOrigin( tf::Vector3(t[0], t[1], t[2]) );
     br.sendTransform(tf::StampedTransform(cam2j4,  ros::Time::now(), "joint4",  "cam_pos"));
