@@ -43,6 +43,8 @@
 import roslib
 roslib.load_manifest('mc')
 import rospy
+from turtlebot_node.msg import BatteryState
+from turtlebot_node.msg import LaptopChargeStatus
 
 # Custom modules
 from tasks.fixNodes import fixNodes
@@ -69,7 +71,9 @@ class mc:
                         'targetLocated': 0,
                         'atTarget': 0,
                         'targetReachable': 1, # Assume target is reachable.
-                        'targetGrasped': 0
+                        'targetGrasped': 0,
+                        'roombaBatteryPerc': 100, # Assume fully charged.
+                        'laptopBatteryPerc': 100 # Assume fully charged.
                         }
 
         self.currentTask = 0
@@ -79,6 +83,9 @@ class mc:
 
         #Linux USB device from which to read the data. Default = /dev/ttyUSB0
         rospy.set_param('~port', '/dev/ttyUSB0')
+
+        # Play Mario Bros. theme song.
+        rospy.set_param('~bonus', True)
 
 ###############################################################################
 
@@ -91,6 +98,12 @@ class mc:
 
         # Loop until the mission is completed or until an error occurs.
         while(not rospy.is_shutdown()):
+
+            # Check the status of the battery.
+            rospy.Subscriber('/turtlebot_node/LaptopChargeStatus', LaptopChargeStatus, self.LaptopChargeHandler)
+
+            # Check the roomba battery.
+            rospy.Subscriber('/turtlebot_node/BatteryState', BatteryState, self.BatteryStateHandler)
 
             # 2. Deliberate / decide what to do next.
             self.deliberate()
@@ -119,6 +132,17 @@ class mc:
 
 ###############################################################################
 
+    def LaptopChargeHandler(self, msg):
+        self.beliefs['laptopBatteryPerc'] = msg.percentage
+
+###############################################################################
+
+    def BatteryStateHandler(self, msg):
+        percentage = (msg.charge / msg.capacity) * 100.0
+        self.beliefs['roombaBatteryPerc'] = percentage
+
+###############################################################################
+
     def deliberate(self):
         """ Use the current values in self.beliefs to decide which
             task to perform next."""
@@ -131,7 +155,21 @@ class mc:
         # target, we must check that we are at the target.
 
         #######################################################################
-        # Rule 1: Are all of the ROS nodes online?
+        # Rule: Is the laptop battery sufficiently charged?
+        if(self.beliefs['latptopBatteryPerc'] < 10): # Nominal choice of 10% charge.
+            rospy.logwarn("MC: Laptop battery has insufficient charge! ("
+                          + str(self.beliefs['laptopBatteryPerc']) + "%)")
+            return
+
+        #######################################################################
+        # Rule: Is the roomba battery sufficiently charged?
+        if(self.beliefs['roombaBatteryPerc'] < 10): # Nominal choice of 10% charge.
+            rospy.logwarn("MC: Roomba battery has insufficient charge! ("
+                          + str(self.beliefs['roombaBatteryPerc']) + "%)")
+            return
+
+        #######################################################################
+        # Rule: Are all of the ROS nodes online?
         ##if(self.beliefs['nodesOnline'] == 0):
         ##    # Try to fix downed nodes.
         ##    rospy.logwarn("MC: One or more of my nodes are down!")
@@ -139,7 +177,7 @@ class mc:
         ##    return
 
         #######################################################################
-        # Rule 1: Are the nodes online?
+        # Rule: Are the nodes online?
         if(self.beliefs['nodesOnline'] == 0):
             # Calibrate the camera.
             rospy.logwarn("MC: One of the nodes is down!")
@@ -147,7 +185,7 @@ class mc:
             return
 
         #######################################################################
-        # Rule 2: Is the camera calibrated?
+        # Rule: Is the camera calibrated?
         if(self.beliefs['cameraCalibrated'] == 0):
             # Calibrate the camera.
             rospy.logwarn("MC: My camera is not calibrated!")
@@ -155,7 +193,7 @@ class mc:
             return
 
         #######################################################################
-        # Rule 3: Has the turtlebot crashed into something?
+        # Rule: Has the turtlebot crashed into something?
         if(self.beliefs['crashed'] == 1):
             # Try to reorient the turtlebot.
             rospy.logwarn("MC: I crashed into something!")
@@ -163,7 +201,7 @@ class mc:
             return
 
         #######################################################################
-        # Rule 4: Has the target been located?
+        # Rule: Has the target been located?
         if(self.beliefs['targetLocated'] == 0):
             # Calibrate the camera.
             rospy.logwarn("MC: I can't see the target!")
@@ -171,7 +209,7 @@ class mc:
             return
 
         #######################################################################
-        # Rule 5: Is the turtlebot at the target?
+        # Rule: Is the turtlebot at the target?
         if(self.beliefs['atTarget'] == 0):
             # Drive to the target.
             rospy.logwarn("MC: I'm not at the target yet!")
@@ -179,13 +217,13 @@ class mc:
             return
 
         #######################################################################
-        # Rule 6: Is the target reachable?
+        # Rule: Is the target reachable?
         if(self.beliefs['targetReachable'] == 0):
             rospy.loginfo("MC: I can't reach the target from here!")
             self.currentTask = makeReachable()
 
         #######################################################################
-        # Rule 7: If everything is OK then grasp the target.
+        # Rule: If everything is OK then grasp the target.
         if(self.beliefs['targetGrasped'] == 0):
             # Assume success for now
             self.beliefs['targetGrasped'] = 1
