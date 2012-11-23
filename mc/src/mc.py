@@ -74,6 +74,12 @@ class mc:
 
         self.currentTask = 0
 
+        # Let tuertlebot_node know that we're using a 'roomba' not a 'create'.
+        rospy.set_param('~robot_type', 'roomba')
+
+        #Linux USB device from which to read the data. Default = /dev/ttyUSB0
+        rospy.set_param('~port', '/dev/ttyUSB0')
+
 ###############################################################################
 
     def launch(self):

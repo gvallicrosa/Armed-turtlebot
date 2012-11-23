@@ -23,6 +23,11 @@ class motionControl:
     def __init__(self):
         # Assume the turtlebot isn't in a crashed state.
         rospy.loginfo("motionControl: Started.")
+
+        # Stop forward motion if the turtlebot has crashed.
+        rospy.set_param('~stop_motors_on_bump', True)
+
+        # Assume the trutlebot is not crashed.
         self.crashed = 0
 
     ############################################################################
