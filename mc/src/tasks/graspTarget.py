@@ -4,8 +4,6 @@
 import os
 
 # ROS modules
-import roslib
-#roslib.load_manifest('mc')
 import rospy
 
 # Custom modules
@@ -40,9 +38,9 @@ class graspTarget(task):
 
         # Start the visual servoing.
         os.system('roslaunch tracking tracker.launch')
-        
+
         # Post string to ROS param server
         rospy.set_param('circleInit', self.fivePointsString)
-        
+
         # Tell mission control the target has been grasped.
         self.requestService(mc_updateBelief, ("targetGrasped", int(self.grasped)))

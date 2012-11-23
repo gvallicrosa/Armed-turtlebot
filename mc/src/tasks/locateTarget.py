@@ -3,10 +3,8 @@
 # Python modules
 
 # ROS modules
-import roslib
 #roslib.load_manifest('mc')
 import rospy
-from std_msgs.msg import Int8
 from std_msgs.msg import Float64
 
 # Custom modules
@@ -25,10 +23,10 @@ class locateTarget(task):
         self.measuredRadius = 0.0
 
     ###########################################################################
-        
+
     def updateRadiusHandler(self, msg):
         """Callback function for subscribes."""
-        self.measuredRadius = msg.data 
+        self.measuredRadius = msg.data
 
     ###########################################################################
 
@@ -43,21 +41,20 @@ class locateTarget(task):
 
             # Is the ball in the camera's field of view?
             if(self.measuredRadius > 0):
-               self.located = 1 
-               
+               self.located = 1
+
                # Listen for the centroid co-ordinates and rotate to centre the ball
                # in the field of view of the camera.
-            
+
             # Have we found the ball yet?
             if(self.located == 0):
                 # Rotate the turtlebot
                 self.requestService(motionControl_move, (0.0, 0.1))
-                rospy.loginfo('locateTarget: Locating target...')
+                rospy.logdebug('locateTarget: Locating target...')
 
         # Stop the turtlebot
         self.requestService(motionControl_move, (0.0, 0.0))
 
         # Tell mission control the target has been located.
-        rospy.loginfo('locateTarget: target located.')
+        rospy.logdebug('locateTarget: target located.')
         self.requestService(mc_updateBelief, ("targetLocated", 1))
-

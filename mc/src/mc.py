@@ -80,7 +80,7 @@ class mc:
         """Launch the mission control logic."""
         rospy.loginfo("MC: Launching mission control logic...")
 
-        # 1. Provide service for updating beliefs. 
+        # 1. Provide service for updating beliefs.
         rospy.Service('mc_updateBelief', mc_updateBelief, self.updateBeliefHandler)
 
         # Loop until the mission is completed or until an error occurs.
@@ -200,8 +200,9 @@ class mc:
 # Module entry point.
 if __name__ == "__main__":
 
-    # Initialize ROS node.
-    rospy.init_node("mc")
+    # Initialize ROS node and set the logger verbosity.
+    #rospy.init_node("mc", log_level=rospy.DEBUG) # <--- Uncomment/comment to show/hide debug message.
+    rospy.init_node("mc", log_level=rospy.INFO) # <--- Comment/uncomment to show/hide debug message.
 
     # Instantiate mc class.
     m = mc()

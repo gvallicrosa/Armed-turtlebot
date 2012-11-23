@@ -3,8 +3,6 @@
 # Python modules
 
 # ROS modules
-import roslib
-#roslib.load_manifest('mc')
 import rospy
 
 # Custom modules

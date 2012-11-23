@@ -3,8 +3,6 @@
 # Python modules
 
 # ROS modules
-import roslib
-#roslib.load_manifest('mc')
 import rospy
 
 # Custom modules
@@ -21,7 +19,7 @@ class handleCrash(task):
 
     def task(self, statusServices=[]):
         """Handle crash scenario."""
-        rospy.loginfo("* Handling crash...")
+        rospy.logdebug("handleCrash: Handling crash...")
 
         # 1. Reverse away from obstacle.
         self.requestService(motionControl_timedMove, (-0.1, 0.0, 3))

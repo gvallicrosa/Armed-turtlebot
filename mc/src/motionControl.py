@@ -4,7 +4,6 @@
 import time
 
 # ROS Libraries
-import roslib
 import rospy
 from geometry_msgs.msg import Twist
 from mc.msg import TurtlebotSensorState
@@ -50,7 +49,7 @@ class motionControl:
             # Prevent move() and timedMove() from moving the base.
             self.crashed = 1
 
-        else:     
+        else:
             # Tell mission control.
             self.requestService(mc_updateBelief, ('crashed', 0))
 
@@ -67,7 +66,7 @@ class motionControl:
         rospy.spin()
 
     ############################################################################
-   
+
     def movement(self, lin_speed, ang_speed):
         """Move the roomba."""
         rospy.loginfo('MotionControl: move.')
@@ -78,9 +77,9 @@ class motionControl:
         cmd_move.linear.y = 0.0
         cmd_move.linear.z = 0.0
         cmd_move.angular.x = 0.0
-        cmd_move.angular.y = 0.0   
-        cmd_move.angular.z = ang_speed 
-        
+        cmd_move.angular.y = 0.0
+        cmd_move.angular.z = ang_speed
+
         # If the turtlebot has crashed then disable forwards motion.
         if(self.crashed == 1 and lin_speed > 0 and ang_speed == 0):
             # TRUE: Display warning.
@@ -88,7 +87,7 @@ class motionControl:
         else:
             # FALSE: Move.
             self.pub_cmd_vel.publish(cmd_move)
-   
+
    ############################################################################
 
     def move(self, msg):
@@ -96,16 +95,16 @@ class motionControl:
         return []
 
     ############################################################################
- 
+
     def timedMove(self, msg):
         """Move the roomba for a given duration.
         Continually publish at 0.1s intervals
         until the specified duration is reached."""
-        
+
         duration = msg.duration
         lin_speed = msg.linear
         ang_speed = msg.angular
-       
+
         rospy.loginfo('MotionControl: timedMove.')
         rospy.loginfo('MotionControl: Duration = ' + str(duration) + ' seconds.')
         rospy.loginfo('MotionControl: Linear speed = ' + str(lin_speed))
@@ -122,6 +121,7 @@ class motionControl:
 
 # Entry point >
 if __name__ == "__main__":
-    rospy.init_node('motionControl')
+    #rospy.init_node('motionControl',  log_level=rospy.DEBUG) # <--- Uncomment/comment to enable/disable debug messages.
+    rospy.init_node('motionControl',  log_level=rospy.DEBUG) # <--- comment/uncomment to enable/disable debug messages.
     mc = motionControl()
     mc.launchServices()
