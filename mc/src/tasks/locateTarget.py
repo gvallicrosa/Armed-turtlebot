@@ -32,6 +32,7 @@ class locateTarget(task):
 
     def task(self, statusServices=[]):
         """Locate the target."""
+        rospy.loginfo("locateTarget: Locating target...")
 
         # Loop until the target is located.
         while(self.located == 0):
@@ -50,7 +51,7 @@ class locateTarget(task):
             if(self.located == 0):
                 # Rotate the turtlebot
                 self.requestService(motionControl_move, (0.0, 0.1))
-                rospy.logdebug('locateTarget: Locating target...')
+                rospy.logdebug('locateTarget: measured radius = ' + str(self.measuredRadius))
 
         # Stop the turtlebot
         self.requestService(motionControl_move, (0.0, 0.0))

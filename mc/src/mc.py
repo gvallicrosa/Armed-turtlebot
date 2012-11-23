@@ -181,11 +181,12 @@ class mc:
         #######################################################################
         # Rule 7: If everything is OK then grasp the target.
         if(self.beliefs['targetGrasped'] == 0):
+            # Assume success for now
+            self.beliefs['targetGrasped'] = 1
+
             rospy.loginfo("MC: I'm going to try to grasp the target!")
             self.currentTask = graspTarget()
 
-            # Assume success for now
-            self.beliefs['targetGrasped'] = 1
 
 
 ###############################################################################

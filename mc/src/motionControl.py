@@ -22,6 +22,7 @@ class motionControl:
 
     def __init__(self):
         # Assume the turtlebot isn't in a crashed state.
+        rospy.loginfo("motionControl: Started.")
         self.crashed = 0
 
     ############################################################################

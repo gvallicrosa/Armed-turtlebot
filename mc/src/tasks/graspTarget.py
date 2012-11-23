@@ -2,6 +2,7 @@
 
 # Python modules
 import os
+import subprocess
 
 # ROS modules
 import rospy
@@ -9,7 +10,6 @@ import rospy
 # Custom modules
 from task import task
 from mc.srv import mc_updateBelief
-from mc.srv import vs_graspTarget
 from std_msgs.msg import String
 
 ###############################################################################
@@ -36,8 +36,12 @@ class graspTarget(task):
         # Listen to the detection node - get the radius of the ball and 5-points string.
         rospy.Subscriber('/detection/5Points', String, self.update5PointsHandler)
 
+        # We can either i) wait for a message telling us that the target has
+        # been grasped or ii) assume that the attempt will be successful.
+        self.grasped = 1 # ii)
+
         # Start the visual servoing.
-        os.system('roslaunch tracking tracker.launch')
+        os.system("xterm -geometry 100x50 -hold -T 'roslaunch tracking tracker.launch' -e 'roslaunch tracking tracker.launch'")
 
         # Post string to ROS param server
         rospy.set_param('circleInit', self.fivePointsString)
