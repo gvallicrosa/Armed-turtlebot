@@ -259,9 +259,9 @@ int main(int argc, char ** argv)
   ros::init(argc, argv, "camera_calibration");
   ros::NodeHandle nodeh;
   std::string impath;
-  nodeh.getParam("/impath", impath);
+  nodeh.getParam("/visualservoing/impath", impath);
   bool take_pict;
-  nodeh.getParam("/take_pictures", take_pict);
+  nodeh.getParam("/visualservoing/take_pictures", take_pict);
   
   ///////////////////////////////////////////
   //---------PARAMETERS--------------------

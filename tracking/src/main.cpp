@@ -44,9 +44,9 @@ int main(int argc, char **argv)
   ros::NodeHandle nodeh;
   std::string calibfile, circleString;
   int cameraid;
-  nodeh.getParam("/calibfile", calibfile);
-  nodeh.getParam("/cameraID",  cameraid);
-  nodeh.getParam("/circleInit", circleString);
+  nodeh.getParam("/visualservoing/calibfile", calibfile);
+  nodeh.getParam("/visualservoing/cameraID",  cameraid);
+  nodeh.getParam("/visualservoing/circleInit", circleString);
   unsigned int x[5];
   unsigned int y[5];
   std::vector<std::string> tokens = split(circleString, ',');

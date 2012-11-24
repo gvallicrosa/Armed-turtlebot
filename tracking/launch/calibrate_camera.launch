@@ -2,8 +2,8 @@
 
 <launch>
     <!--PARAMETERS-->
-    <param name="/impath" value="$(find tracking)/src/calibData/img-%02d.pgm" />
-    <param name="/take_pictures" value="true"/>
+    <param name="/visualservoing/impath" value="$(find tracking)/src/calibData/img-%02d.pgm" />
+    <param name="/visualservoing/take_pictures" value="true"/>
     <!--NODE-->
     <node pkg="tracking" type="calibrateInt" name="CalibrateInt"/>
 </launch>

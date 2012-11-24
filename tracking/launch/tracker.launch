@@ -2,9 +2,9 @@
 
 <launch>
     <!-- PARAMETERS -->
-    <param name="/calibfile" value="$(find tracking)/src/calibData/img-00.pgm.xml" />
-    <param name="/cameraID"  value="1" />
-    <param name="/circleInit" value="283,247,398,266,424,378,380,438,248,420" />
+    <param name="/visualservoing/calibfile" value="$(find tracking)/src/calibData/img-00.pgm.xml" />
+    <param name="/visualservoing/cameraID"  value="1" />
+    <param name="/visualservoing/circleInit" value="283,247,398,266,424,378,380,438,248,420" />
     
     <!-- NODE -->
     <node name="ball_tracking" pkg="tracking" type="tracking" > </node> 

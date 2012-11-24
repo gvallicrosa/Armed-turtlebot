@@ -62,7 +62,7 @@ def serviceHandler(req):
         ans = [arm.move_all(home_pos),]
     else:
         # no valid request
-        print 'no valid request\n'
+        rospy.logerr('No valid service request to smart_arm_server')
         ans = [0,]
 
     return SmartArmServiceResponse(ans)
