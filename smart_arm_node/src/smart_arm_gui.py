@@ -41,16 +41,16 @@ def from_arm_server(kind, data=[0, ]):
           7 : move the four first joints to desired (x,y,z) using IK solver
           8 : grab/ungrab with the hand
           9 : ask for (x,y,z) position of end effector
-         10 : ask if (x,y,z) is reachable
+         10 : go to home position
     Data should be provided for some of the requests.
     A response according to what is accomplished is retured.
     """
-    rospy.wait_for_service('get_arm_srv')
+    rospy.wait_for_service('/arm_server/services')
     try:
         print "=== Service request"
         print "kind: ", kind
         print "data: ", data
-        use_service = rospy.ServiceProxy('get_arm_srv', SmartArmService)
+        use_service = rospy.ServiceProxy('/arm_server/services', SmartArmService)
         resp = use_service(kind, data)
         print "resp: ", resp.values
         print ""
@@ -70,6 +70,7 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         self.setupUi(self)
 
         # Useful lists
+        self.jointpos = [self.spinj1, self.spinj2, self.spinj3, self.spinj4]
         self.sliders = [self.slider_j1, self.slider_j2, self.slider_j3, self.slider_j4]
         self.labels = [self.stat_j1, self.stat_j2, self.stat_j3, self.stat_j4,
                        self.stat_j5, self.stat_x, self.stat_y, self.stat_z]
@@ -90,7 +91,14 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         self.connect(self.pushButton_j4plus, QtCore.SIGNAL("pressed()"), self.update_j4plus)
         ## Grab button
         self.connect(self.pushButton_grab, QtCore.SIGNAL("pressed()"), self.update_grab)
-        ## Move joints button
+        ## Home button
+        self.connect(self.pushButton_home, QtCore.SIGNAL("pressed()"), self.update_home)
+        ## Move single joint button
+        self.connect(self.pushButton_mj1, QtCore.SIGNAL("pressed()"), self.update_mov_j1)
+        self.connect(self.pushButton_mj2, QtCore.SIGNAL("pressed()"), self.update_mov_j2)
+        self.connect(self.pushButton_mj3, QtCore.SIGNAL("pressed()"), self.update_mov_j3)
+        self.connect(self.pushButton_mj4, QtCore.SIGNAL("pressed()"), self.update_mov_j4)
+        ## Move all joints button
         self.connect(self.pushButton_mjnts, QtCore.SIGNAL("pressed()"), self.update_mjnts)
         ## Move xyz button
         self.connect(self.pushButton_xyz, QtCore.SIGNAL("pressed()"), self.update_xyz)
@@ -104,6 +112,13 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         from_arm_server(8)
         # Update sliders and labels
         self.refresh_joints()
+        
+    def update_home(self):
+        """
+        Moves arm to home defined position
+        """
+        # Request home position
+        from_arm_server(10)
 
     def update_joint(self, i, plus):
         """
@@ -141,6 +156,15 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
             ## Update labels
             text = "%1.4f" % xyz[i]
             self.labels[5 + i].setText(text)
+            
+    def update_movejoint(self, i):
+        """
+        Moves one joint to the specified value in its spinBox
+        """
+        # Take value from spinBox
+        goal = self.jointpos[i - 1].value()
+        # Request movement
+        from_arm_server(i, goal)
 
     def update_mjnts(self):
         """
@@ -148,10 +172,8 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         """
         # Take the values from the corresponding spinBoxes
         goal = list()
-        goal.append(self.spinj1.value())
-        goal.append(self.spinj2.value())
-        goal.append(self.spinj3.value())
-        goal.append(self.spinj4.value())
+        for i in range(4):
+            goal.append(self.jointpos[i].value())
         # Ask the server to move all joints
         from_arm_server(6, goal)
         # Update sliders and labels
@@ -194,6 +216,18 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
 
     def update_j4plus(self):
         self.update_joint(3, True)
+        
+    def update_mov_j1(self):
+        self.update_movejoint(1)
+        
+    def update_mov_j2(self):
+        self.update_movejoint(2)
+        
+    def update_mov_j3(self):
+        self.update_movejoint(3)
+        
+    def update_mov_j4(self):
+        self.update_movejoint(4)
 
 
 ################################################################################

@@ -10,12 +10,11 @@ import rospy
 # ROS messages
 from std_msgs.msg import Float64, Bool, Float64MultiArray
 from dynamixel_msgs.msg import JointState, MotorStateList
-#from smart_arm_node.msg import Float64List
 from smart_arm_node.srv import SmartArmService, SmartArmServiceResponse
 import tf
 
 # Maths
-from numpy import pi, arctan2, cos, sin, array, sqrt, arccos, eye, array, dot, zeros
+from numpy import pi, arctan2, cos, sin, array, sqrt, arccos, eye, dot, zeros
 
 # Time
 from time import sleep
@@ -23,7 +22,7 @@ from time import sleep
 
 
 ################################################################################
-def ask_server(req):
+def serviceHandler(req):
     """
     Accepts external requests about status and movements, depending on the
     'req.what' value.
@@ -33,7 +32,7 @@ def ask_server(req):
           7 : move the four first joints to desired (x,y,z) using IK solver
           8 : grab/ungrab with the hand
           9 : ask for (x,y,z) position of end effector
-         10 : ask if (x,y,z) is reachable
+         10 : go to home position
     Data should be provided for some of the requests.
     A response according to what is accomplished is retured.
     """
@@ -57,6 +56,10 @@ def ask_server(req):
     elif req.what == 9:
         # position status
         ans = arm.fkine(joints_curr, True)[:3,3]
+    elif req.what == 10:
+        # go home
+#        home_pos = [,,,]
+        ans = [arm.move_all(home_pos),]
     else:
         # no valid request
         print 'no valid request\n'
@@ -437,10 +440,12 @@ joints_curr = [0,]*5
 ################################################################################
 if __name__ == '__main__':
     # Initialize ROS node
-    rospy.init_node('smart_arm_server')#, anonymous=True)
-    rospy.loginfo('smart_arm_server initialized')
+    rospy.init_node('smart_arm_server', log_level=rospy.INFO)
+#    rospy.init_node('smart_arm_server', log_level=rospy.DEBUG)
+    rospy.logdebug('Initializing smart_arm_server node...')
     
     # Publishers
+    rospy.logdebug('Initializing publishers...')
     ## To controller
     pub_j1 = rospy.Publisher("/shoulder_pan_controller/command",   Float64)
     pub_j2 = rospy.Publisher("/shoulder_pitch_controller/command", Float64)
@@ -455,8 +460,11 @@ if __name__ == '__main__':
     pos_j4 = rospy.Publisher("/arm_server/j4", Float64)
     pos_j5 = rospy.Publisher("/arm_server/j5", Float64)
     pub_pos = [pos_j1, pos_j2, pos_j3, pos_j4, pos_j5]
+    ## Transform broadcaster
+    tfbr = tf.TransformBroadcaster()
         
     # Subscribers
+    rospy.logdebug('Initializing subscribers...')
     ## From controller
     stat_j1 = rospy.Subscriber('/shoulder_pan_controller/state',   JointState, check_joint, 1)
     stat_j2 = rospy.Subscriber('/shoulder_pitch_controller/state', JointState, check_joint, 2)
@@ -464,26 +472,24 @@ if __name__ == '__main__':
     stat_j4 = rospy.Subscriber('/wrist_roll_controller/state',     JointState, check_joint, 4)
     stat_j5 = rospy.Subscriber('/right_finger_controller/state',   JointState, check_joint, 5)
     
-    # Transform broadcaster
-    tfbr = tf.TransformBroadcaster()
-    
     # Services
-    srv_values = rospy.Service('get_arm_srv', SmartArmService, ask_server)
+    rospy.logdebug('Initializing services...')
+    srv_values = rospy.Service('/arm_server/services', SmartArmService, serviceHandler)
 
     # Get controller limits
+    rospy.logdebug('Reading joint limits from controller...')
     try:
         qlims = get_arm_limits()
-        print '# Readed limits from controller:\n', qlims, '\n'
+        rospy.loginfo((' Readed limits from controller:\n%s' % qlims))
     except: # arm controller not initialized
-        print '# Error: No controller found.\nLoading standard joint limits' # TODO:change to rosdebug info
-#        qlims = array([[-1.22207136,1.22207136],[-1.04822021,1.97372195],[-1.88679637,1.97372195],
-#                       [-2.61288061,2.61799388],[-0.24032366,0.84368943]])
         qlims = array([[-2.60265407, 2.59754080], [-1.53909406, 1.84589021],
                        [-1.84589021, 1.77941771], [-1.19650501, 2.59754080],
                        [-0.80789655, 0.18919096]])
+        rospy.logerr(('No controller found. Loading standard joint limits...\n%s' % qlims))
 
                        
     # Sizes obtained with DH method
+    rospy.logdebug('Setting up arm...')
     a1 = 0.051
     a2 = 0.174
     a3 = 0.023
@@ -504,4 +510,5 @@ if __name__ == '__main__':
     arm = Arm(links)
         
     # Continue execution forever
+    rospy.loginfo('Node smart_arm_server initialized.')
     rospy.spin()

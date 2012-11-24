@@ -22,6 +22,9 @@
     <height>410</height>
    </size>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::NoFocus</enum>
+  </property>
   <property name="windowTitle">
    <string>Smart Arm Controller Interface</string>
   </property>
@@ -37,14 +40,22 @@
        <item>
         <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>j1:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
           <widget class="QDoubleSpinBox" name="spinj1">
+           <property name="frame">
+            <bool>true</bool>
+           </property>
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="accelerated">
+            <bool>false</bool>
+           </property>
+           <property name="correctionMode">
+            <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+           </property>
+           <property name="keyboardTracking">
+            <bool>false</bool>
+           </property>
            <property name="decimals">
             <number>3</number>
            </property>
@@ -57,13 +68,6 @@
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>j3:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="3">
           <widget class="QDoubleSpinBox" name="spinj3">
            <property name="decimals">
             <number>3</number>
@@ -77,13 +81,6 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>j2:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
           <widget class="QDoubleSpinBox" name="spinj2">
            <property name="decimals">
             <number>3</number>
@@ -96,14 +93,14 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="label_4">
+         <item row="0" column="1">
+          <widget class="QPushButton" name="pushButton_mj1">
            <property name="text">
-            <string>j4:</string>
+            <string>move_j1</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="3">
+         <item row="1" column="2">
           <widget class="QDoubleSpinBox" name="spinj4">
            <property name="decimals">
             <number>3</number>
@@ -116,12 +113,33 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="3">
+          <widget class="QPushButton" name="pushButton_mj3">
+           <property name="text">
+            <string>move_j3</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="pushButton_mj2">
+           <property name="text">
+            <string>move_j2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QPushButton" name="pushButton_mj4">
+           <property name="text">
+            <string>move_j4</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
         <widget class="QPushButton" name="pushButton_mjnts">
          <property name="text">
-          <string>Move joints</string>
+          <string>Move all joints</string>
          </property>
         </widget>
        </item>
@@ -148,7 +166,7 @@
        <item>
         <widget class="QLabel" name="label_j3">
          <property name="text">
-          <string>elbow_flex (Q/W)</string>
+          <string>j3: elbow_flex (Q/W)</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -269,27 +287,11 @@
       </layout>
      </item>
      <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>15</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QLabel" name="label_j4">
          <property name="text">
-          <string>wrist_roll (1/2)</string>
+          <string>j4: wrist_roll (1/2)</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -437,9 +439,9 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_10">
          <item>
-          <widget class="QLabel" name="label_6">
+          <widget class="QLabel" name="label_increment">
            <property name="text">
-            <string>Angle increment:</string>
+            <string>Angle increment (rad):</string>
            </property>
           </widget>
          </item>
@@ -464,10 +466,10 @@
               <double>1.000000000000000</double>
              </property>
              <property name="singleStep">
-              <double>0.010000000000000</double>
+              <double>0.020000000000000</double>
              </property>
              <property name="value">
-              <double>0.050000000000000</double>
+              <double>0.100000000000000</double>
              </property>
             </widget>
            </item>
@@ -493,7 +495,7 @@
          <item>
           <widget class="QLabel" name="label_j2">
            <property name="text">
-            <string>shoulder_pitch (A/S)</string>
+            <string>j2: shoulder_pitch (A/S)</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -634,7 +636,7 @@
          <item>
           <widget class="QLabel" name="label_j1">
            <property name="text">
-            <string>shoulder_pan (Z/X)</string>
+            <string>j1: shoulder_pan (Z/X)</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -865,7 +867,7 @@
          <property name="minimumSize">
           <size>
            <width>100</width>
-           <height>40</height>
+           <height>30</height>
           </size>
          </property>
          <property name="text">
@@ -873,6 +875,25 @@
          </property>
          <property name="shortcut">
           <string>G</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_home">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Home (H)</string>
+         </property>
+         <property name="shortcut">
+          <string>H</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -892,14 +913,14 @@
        <item>
         <layout class="QFormLayout" name="formLayout_3">
          <item row="0" column="0">
-          <widget class="QLabel" name="label_13">
+          <widget class="QLabel" name="label_stat_x">
            <property name="text">
             <string>X :</string>
            </property>
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_10">
+          <widget class="QLabel" name="label_stat_y">
            <property name="text">
             <string>Y :</string>
            </property>
@@ -916,7 +937,7 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_9">
+          <widget class="QLabel" name="label_stat_z">
            <property name="text">
             <string>Z :</string>
            </property>
@@ -960,7 +981,7 @@
        <item>
         <layout class="QFormLayout" name="formLayout">
          <item row="0" column="0">
-          <widget class="QLabel" name="stat_j5_2">
+          <widget class="QLabel" name="label_spinx">
            <property name="text">
             <string>X:</string>
            </property>
@@ -980,7 +1001,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="stat_j5_3">
+          <widget class="QLabel" name="label_spiny">
            <property name="text">
             <string>Y:</string>
            </property>
@@ -1000,7 +1021,7 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="stat_j5_4">
+          <widget class="QLabel" name="label_spinz">
            <property name="text">
             <string>Z:</string>
            </property>
@@ -1035,15 +1056,22 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>spinj1</tabstop>
-  <tabstop>spinj2</tabstop>
-  <tabstop>spinj3</tabstop>
-  <tabstop>spinj4</tabstop>
   <tabstop>pushButton_mjnts</tabstop>
+  <tabstop>spinj1</tabstop>
+  <tabstop>pushButton_mj1</tabstop>
+  <tabstop>spinj2</tabstop>
+  <tabstop>pushButton_mj2</tabstop>
+  <tabstop>spinj3</tabstop>
+  <tabstop>pushButton_mj3</tabstop>
+  <tabstop>spinj4</tabstop>
+  <tabstop>pushButton_mj4</tabstop>
   <tabstop>spinx</tabstop>
   <tabstop>spiny</tabstop>
   <tabstop>spinz</tabstop>
   <tabstop>pushButton_xyz</tabstop>
+  <tabstop>pushButton_grab</tabstop>
+  <tabstop>pushButton_home</tabstop>
+  <tabstop>increment_spin</tabstop>
   <tabstop>pushButton_j1min</tabstop>
   <tabstop>pushButton_j1plus</tabstop>
   <tabstop>pushButton_j2min</tabstop>
@@ -1052,7 +1080,6 @@
   <tabstop>pushButton_j3plus</tabstop>
   <tabstop>pushButton_j4min</tabstop>
   <tabstop>pushButton_j4plus</tabstop>
-  <tabstop>pushButton_grab</tabstop>
   <tabstop>slider_j1</tabstop>
   <tabstop>slider_j2</tabstop>
   <tabstop>slider_j3</tabstop>
