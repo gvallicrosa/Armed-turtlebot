@@ -1,11 +1,6 @@
-<launch>
-<!--	<arg name="model" />-->
-<!--	<arg name="gui" default="False" />-->
-<!--<!--	<param name="robot_description" textfile="$(arg model)" />-->-->
-<!--    <param name="robot_description" textfile="$(find smart_arm_node)/urdf/arm.urdf" />-->
-<!--	<param name="use_gui" value="$(arg gui)"/>-->
-<!--	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node>-->
-<!--	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />-->
-	<node name="rviz" pkg="rviz" type="rviz"/> <!--args="-d $(find smart_arm_node)/urdf/urdf.vcg" />-->
-</launch>
+<!-- -*- mode: XML -*- -->
 
+<launch>
+	<arg name="config" default="$(find smart_arm_node)/launch/rviz.vcg" /> 
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(arg config)" output="screen"/>
+</launch>

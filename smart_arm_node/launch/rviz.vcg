@@ -1,0 +1,46 @@
+Background\ ColorB=0
+Background\ ColorG=0
+Background\ ColorR=0
+Camera\ Config=0.774797 1.92408 0.661405 -0.11018 0.0961551 0.257944
+Camera\ Type=rviz::OrbitViewController
+Fixed\ Frame=/joint0
+Grid.Alpha=0.5
+Grid.Cell\ Size=0.1
+Grid.ColorB=0.5
+Grid.ColorG=0.5
+Grid.ColorR=0.5
+Grid.Enabled=1
+Grid.Line\ Style=0
+Grid.Line\ Width=0.03
+Grid.Normal\ Cell\ Count=0
+Grid.OffsetX=0
+Grid.OffsetY=0
+Grid.OffsetZ=0
+Grid.Plane=0
+Grid.Plane\ Cell\ Count=10
+Grid.Reference\ Frame=<Fixed Frame>
+Property\ Grid\ Splitter=409,78
+Property\ Grid\ State=expanded=.Global Options,TF.Enabled;splitterratio=0.5
+QMainWindow=000000ff00000000fd00000003000000000000011d00000239fc0200000001fb000000100044006900730070006c006100790073010000003600000239000000ee00ffffff000000010000013100000239fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000036000000910000006700fffffffb0000000a0056006900650077007301000000cd0000010b000000bb00fffffffb0000001200530065006c0065006300740069006f006e01000001de000000910000006700ffffff00000003000005430000003efc0100000001fb0000000800540069006d0065010000000000000543000002bf00ffffff000002e90000023900000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+TF.All\ Enabled=0
+TF.Enabled=1
+TF.Frame\ Timeout=15
+TF.Marker\ Scale=0.2
+TF.Show\ Arrows=1
+TF.Show\ Axes=1
+TF.Show\ Names=0
+TF.Update\ Interval=0
+Target\ Frame=/joint0
+Tool\ 2D\ Nav\ GoalTopic=/move_base_simple/goal
+Tool\ 2D\ Pose\ EstimateTopic=initialpose
+[Display0]
+ClassName=rviz::GridDisplay
+Name=Grid
+[Display1]
+ClassName=rviz::TFDisplay
+Name=TF
+[Window]
+Height=720
+Width=1349
+X=-22
+Y=-28
