@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import ipdb
 
 # Qt
 import sys
@@ -47,16 +46,14 @@ def from_arm_server(kind, data=[0, ]):
     """
     rospy.wait_for_service('/arm_server/services')
     try:
-        print "=== Service request"
-        print "kind: ", kind
-        print "data: ", data
+        rospy.logdebug(("= Service request\n    kind: %s   data: %s" % (kind, data)))
         use_service = rospy.ServiceProxy('/arm_server/services', SmartArmService)
         resp = use_service(kind, data)
-        print "resp: ", resp.values
-        print ""
-        return list(resp.values)
+        ans = list(resp.values)
+        rospy.logdebug(("    resp: %s\n" % ans))
+        return ans
     except rospy.ServiceException, e:
-        rospy.logerr(("Service call failed: %s" % e))
+        rospy.logerr(("Service call (%s) failed: %s" % (kind, e)))
 
 
 ################################################################################
@@ -124,8 +121,6 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         """
         Called when a joint position is changed. Sends the commands to the arm.
         """
-        # Request joint status
-#        joints_curr = from_arm_server(0)
         # In/Decrement the position of the joint
         if plus:
             joints_curr[i] += self.increment_spin.value()
@@ -140,8 +135,6 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         """
         Refreshes sliders and labels status, according to the real joint status.
         """
-        # Request joint status
-#        joints_curr = from_arm_server(0)
         # Update
         for i in range(5):
             ## Update labels
@@ -232,7 +225,11 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
 
 ################################################################################
 def update_stat(msg, i):
+    """
+    Function to update current joint positions and labels.
+    """
     joints_curr[i - 1] = msg.data
+    # Update labels not at all received messages
     if i == 1:
         form.refresh_joints()
 
@@ -242,8 +239,9 @@ def update_stat(msg, i):
 ################################################################################
 if __name__ == "__main__":
     # Initialize ROS node
-    rospy.init_node('smart_arm_controller_gui', anonymous=True)
-    rospy.loginfo('smart_arm_node initialized')
+    rospy.init_node('smart_arm_controller_gui', log_level=rospy.INFO)
+#    rospy.init_node('smart_arm_controller_gui', log_level=rospy.DEBUG)
+    rospy.loginfo('Node: smart_arm_node initialized')
     joints_curr = [0, 0, 0, 0, 0]
 
     # QT

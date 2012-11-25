@@ -2,7 +2,6 @@
 #from __future__ import division
 
 # Basics
-import ipdb
 import roslib
 roslib.load_manifest('smart_arm_node')
 import rospy
@@ -45,7 +44,7 @@ def serviceHandler(req):
     elif req.what == 6:
         # move radians
         qs = list(req.data)
-        ans = [arm.move_all(qs),]
+        ans = arm.move_all(qs)
     elif req.what == 7:
         # move xyz
         xyz = list(req.data)
@@ -62,7 +61,7 @@ def serviceHandler(req):
         ans = [arm.move_all(home_pos),]
     else:
         # no valid request
-        rospy.logerr('No valid service request to smart_arm_server')
+        rospy.logerr(('No valid service request (%s) to smart_arm_server' % req.what))
         ans = [0,]
 
     return SmartArmServiceResponse(ans)
@@ -112,8 +111,7 @@ def check_joint(msg, i):
     
     # Check joint for overload (only hand)
     if joints_load[i-1] and i==5:
-        print 'Too much load on joint %s\nStopping joint...' % i
-        print 'Load = ', msg.load
+        rospy.logwarn(('Too much load (%s) on joint %s\nStopping joint...' % (msg.load, i)))
         pub_move[i-1].publish(msg.current_pos)
     
     
@@ -281,7 +279,7 @@ class Arm(object):
         sols[3,2] = q3
         
         # Check solutions
-        print 'Target: %s, %s, %s' % (x,y,z)
+        rospy.logdebug(('\nTarget: %s, %s, %s' % (x,y,z)))
         for i in range(4):        # for all solutions
         
             ## Check solution with FK
@@ -291,11 +289,11 @@ class Arm(object):
                 sols[i,4] = 1     # no valid solution
                 
             ## Some output   
-            print 'Solution %s: ' % i, trans
-            print 'Error: ', sqrt( sum( ( trans-array([x,y,z]) )**2 ) )
-            print 'Joints: ', sols[i,0:4]
+            rospy.logdebug(('Solution %s: %s' % (i, trans)))
+            rospy.logdebug(('Error: %s' % err))
+            rospy.logdebug(('Joints: %s\n' % sols[i,0:4]))
         
-        print 'found %s solutions in design space' % sum(sols[:,4]==0)
+        rospy.loginfo(('Found %s solutions in design space' % sum(sols[:,4]==0)))
         return sols
     
     
@@ -305,7 +303,6 @@ class Arm(object):
         """
         Grabs or ungrabs depending on the joint state.
         """
-        # TODO: check better the movement
         # Check condition
         if abs(joints_curr[4]-qlims[4,0]) < 0.1 and auto:
             val = +1 # close
@@ -316,8 +313,9 @@ class Arm(object):
         pub_move[4].publish(Float64(val))
             
         # Wait until movement end
+        sleep(0.5)
         while sum(joints_move) > 0:
-            sleep(0.1)
+            sleep(0.2)
             
         return 1
         
@@ -340,12 +338,12 @@ class Arm(object):
         Moves the specified joint "i" to the specified position "q".
         '''
         # Publish the movement to the joint
-        pub_move[i-1].publish(Float64(q))#+self.links[i-1].real))
+        pub_move[i-1].publish(Float64(q))
         
         # Wait until finish movement
+        sleep(0.2)
         while sum(joints_move) > 0:
-            sleep(0.1)
-        print "Movement end"
+            sleep(0.2)
         
         # Check if the goal is reached
         cond = abs( array(joints_curr[:4]) - array(q) ) < 0.05
@@ -371,22 +369,23 @@ class Arm(object):
                 ## Check solution with joint limits
                 if not( min(qlims[j,:]) <= sols[i,j] <= max(qlims[j,:]) ):
                     sols[i,4] = 1 # no valid solution
-                    print "Not in joint %s limits: %s" % (j, qlims[j,:])
+                    rospy.logdebug(("Not in joint %s limits: %s" % (j, qlims[j,:])))
                     break
+                    
         # Recheck number of solutions
-        print 'Solutions in real space: ', sum(sols[:,4]==0)
+        rospy.loginfo(('Solutions in real space: %s' % sum(sols[:,4]==0)))
         if sum(sols[:,4]==0) > 0:
             reachable = True
         else:
             reachable = False
-        # If more than one solution, take the nearest to curent one
+            
+        # If there is a solution
         if reachable:
             valid = list()
+            # Prefer some solutions to the oters
             for i in [1,3,0,2]:
                 if sols[i,4] == 0:
                     valid.append(sols[i,:4])
-    #        ipdb.set_trace()
-            #TODO: check offset interaction here!!!!
             return self.move_all(valid[0])
         else:
             return 0
