@@ -162,7 +162,7 @@ class interfaceDialog(QtGui.QDialog, ui_interface.Ui_Dialog):
         Moves one joint to the specified value in its spinBox
         """
         # Take value from spinBox
-        goal = self.jointpos[i - 1].value()
+        goal = [self.jointpos[i - 1].value(), ]
         # Request movement
         from_arm_server(i, goal)
 
