@@ -81,10 +81,10 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 	min_dist = imWebcam.rows/10;
 	
 	if ( debug == 2){
-	    cout << " enter low and high hue thresholds [0 - 255] : " << endl;
+	    ROS_INFO("Segmentation: enter low and high hue thresholds [0 - 255] : ");
 	    cin>>low_hue;
 	    cin>>high_hue;
-	    cout<< "enter low and high saturation thresholds [0 255]"<<endl;
+	    ROS_INFO("Segmentation: enter low and high saturation thresholds [0 255]");
 	    cin>>low_sat;
 	    cin>>high_sat;
 	}
@@ -151,7 +151,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 		Never_detected=false;
 	
 	}else{ // When no circles are detected
-		cout<< " HOUGH DIDNT DETECT ANY CIRCLE -->> PREVIOUS ROI USED"<<endl;
+		ROS_INFO("HOUGH CIRCLE: No circle detected yet");
 		roi = prev_roi;
 	}
 	
@@ -237,7 +237,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 	pub1.publish(msg1);
 	pub2.publish(msg2);
 	
-    cv::waitKey(1);
+    cv::waitKey(3);
 }
 
 
@@ -259,9 +259,7 @@ int main(int argc, char **argv)
     nh.getParam("/detection/debug",    debug);
     ROS_INFO("Node: ball_detector initialized");
     
-    debug=1;
-
-	//Create an ImageTransport instance, initializing it with our NodeHandle.
+    //Create an ImageTransport instance, initializing it with our NodeHandle.
     image_transport::ImageTransport it(nh);
 	
 	//OpenCV HighGUI call to create a display window on start-up.
