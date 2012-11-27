@@ -79,7 +79,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 	cv::GaussianBlur(cv_ptr->image, imWebcam,cv::Size(11,11),11);
 	cv::cvtColor( imWebcam, imHSV, CV_BGR2HSV );
 	min_dist = imWebcam.rows/10;
-	
+	/*
 	if ( debug == 2){
 	    ROS_INFO("Segmentation: enter low and high hue thresholds [0 - 255] : ");
 	    cin>>low_hue;
@@ -87,7 +87,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 	    ROS_INFO("Segmentation: enter low and high saturation thresholds [0 255]");
 	    cin>>low_sat;
 	    cin>>high_sat;
-	}
+	}*/
 	cv::inRange(imHSV,cv::Scalar(low_hue,low_sat,0),cv::Scalar(high_hue,high_sat,255),mask);
 	
 
@@ -227,6 +227,13 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 	    cv::imshow("Segmentation",mask);
 	    cv::imshow("Filtered segmentation",mask2);
 	    cv::imshow("Original image",imWebcam);
+	    
+	    if (debug == 2){ // create sliders
+	        cv::createTrackbar( "low_Hue", "Segmentation", &low_hue, 256, 0 );
+            cv::createTrackbar( "high_Hue", "Segmentation", &high_hue, 256, 0 );
+            cv::createTrackbar( "low_Sat", "Segmentation", &low_sat, 256, 0 );
+            cv::createTrackbar( "high_Sat", "Segmentation", &high_sat, 256, 0 );	    
+	    }
 	}
 	
 	// Publish message1 and message 2	

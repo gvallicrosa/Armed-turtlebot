@@ -8,7 +8,7 @@
             diagnostics_rate: 10
             serial_ports:
                 smart_arm:
-                    port_name: "/dev/ttyUSB0"
+                    port_name: "/dev/smart_arm"
                     baud_rate: 1000000
                     min_motor_id: 1
                     max_motor_id: 7
