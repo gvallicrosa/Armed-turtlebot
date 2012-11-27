@@ -128,7 +128,7 @@ int main(int argc, char **argv)
   pose.clearPoint();
   vpPoint P[4];
   vpImagePoint IP[4];
-//  double r = 0.068/2;
+  //double r = 0.068/2;
   double r = 0.043/2;
   double rI = 1;    // pixel radius
   P[0].setWorldCoordinates(0, 0, 0);
@@ -233,11 +233,17 @@ int main(int argc, char **argv)
     
     sprintf(centerStr,"Center in pixels: (%f, %f), Radius in pixels: %f", IP[0].get_i(), IP[0].get_j(), rI);
     vpDisplay::displayCharString(vpI, vpImagePoint(20, 20), centerStr, vpColor::lightRed) ;
-    //sprintf(realVals,"Center in world:  (%f, %f, %f), FPS: %lf, distance = %lf", t[0], t[1], t[2], fps, cv::sqrt(t[0]*t[0] 
-    //+ t[1]*t[1] + t[2]*t[2]) );
-    tf::Vector3 vec_tf= cam2j4.getOrigin(); 
-    sprintf(realVals,"Cam2j4:  (%f, %f, %f), FPS: %lf, distance = %lf", vec_tf[0], vec_tf[1], vec_tf[2], fps, cv::sqrt(t[0]*t[0] 
-    + t[1]*t[1] + t[2]*t[2]) );
+    
+    if(t[2] < 0)
+    {
+        for(int i = 0; i < 3; ++i)
+            t[i] = -t[i];
+    }
+        
+    
+    sprintf(realVals,"Center in world:  (%f, %f, %f), FPS: %lf, distance = %lf", t[0], t[1], t[2], fps, cv::sqrt(t[0]*t[0] + t[1]*t[1] + t[2]*t[2]) );
+    //tf::Vector3 vec_tf= cam2j4.getOrigin(); 
+    //sprintf(realVals,"Cam2j4:  (%f, %f, %f), FPS: %lf, distance = %lf", vec_tf[0], vec_tf[1], vec_tf[2], fps, cv::sqrt(t[0]*t[0]   + t[1]*t[1] + t[2]*t[2]) );
     
     vpDisplay::displayCharString(vpI, vpImagePoint(40, 20), realVals, vpColor::lightRed) ;
     
