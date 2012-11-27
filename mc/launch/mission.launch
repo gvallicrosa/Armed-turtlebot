@@ -1,0 +1,6 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+    <!-- mission control -->
+    <node name="mission_control" pkg="mc" type="mc.py"> </node>
+</launch>

@@ -6,7 +6,7 @@
 import roslib
 #roslib.load_manifest('mc')
 import rospy
-from std_msgs.msg import Float64
+from std_msgs.msg import Float64, String
 
 # Custom modules
 from task import task
@@ -27,7 +27,7 @@ class gotoTarget(task):
 
     def updateRadiusHandler(self, msg):
         """Callback function for subscribes."""
-        self.measuredRadius = msg.data
+        self.measuredRadius = float(msg.data.split(' ')[2])
 
     def task(self, statusServices=[]):
         """Approach the target."""
@@ -37,7 +37,7 @@ class gotoTarget(task):
 
             # What is the apparent radius of the ball?
             # (Published by detection node)
-            rospy.Subscriber('/detection/radius', Float64, self.updateRadiusHandler)
+            rospy.Subscriber('/detection/posrad', String, self.updateRadiusHandler)
             rospy.logdebug("gotoTarget: Measured target radius = " + str(self.measuredRadius))
 
             ###################################################################

@@ -24,12 +24,12 @@ class graspTarget(task):
     def __init__(self):
         # Assume that the target is not grasped.
         self.grasped = 0
-        self.fivePointsString = '0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0'
+        self.fivePointsString = None
 
     ###########################################################################
 
     def update5PointsHandler(self, msg):
-        self.fivePointsString = msg
+        self.fivePointsString = msg.data
 
     ###########################################################################
 
@@ -43,6 +43,11 @@ class graspTarget(task):
         # been grasped or ii) assume that the attempt will be successful.
         self.grasped = 1 # ii)
 
+        # Check update.
+        if not self.fivePointsString:
+            return
+        # Kill camera server to free the device
+        os.system('kill -s KILL `pidof camera_node`')
         # Start the visual servoing.
         rospy.set_param('/visualservoing/circleInit', self.fivePointsString)
         os.system("xterm -geometry 100x50 -hold -T 'roslaunch tracking tracker.launch' -e 'roslaunch tracking tracker.launch'")

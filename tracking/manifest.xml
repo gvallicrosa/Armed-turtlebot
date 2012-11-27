@@ -13,6 +13,12 @@
   <depend package="roscpp"/>
   <depend package="tf"/>
 
+  <depend package="image_transport"/>
+  <depend package="opencv2"/>
+  <depend package="cv_bridge"/>
+  <depend package="uvc_camera"/>
+  
+  
 </package>
 
 
