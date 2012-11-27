@@ -62,7 +62,7 @@ int main(int argc, char **argv)
   tf::Transform cam2j4;
   tf::Transform obj2cam;
   cam2j4.setRotation( tf::Quaternion(0, 0, -PI/2) );
-  cam2j4.setOrigin(   tf::Vector3(0.047,0,-0.08) );
+  cam2j4.setOrigin(   tf::Vector3(-0.047,0, -0.08) );
   obj2cam.setRotation( tf::Quaternion(0, 0, 0) );
   
   // Image containters ---------------
@@ -124,8 +124,8 @@ int main(int argc, char **argv)
   pose.clearPoint();
   vpPoint P[4];
   vpImagePoint IP[4];
-  double r = 0.068/2;
-//  double r = 0.043/2;
+//  double r = 0.068/2;
+  double r = 0.043/2;
   double rI = 1;    // pixel radius
   P[0].setWorldCoordinates(0, 0, 0);
   P[1].setWorldCoordinates(r, 0, 0);

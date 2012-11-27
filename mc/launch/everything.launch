@@ -1,0 +1,14 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+    <!-- smart_arm_controller and smart_arm_server -->
+    <include file="$(find smart_arm_node)/launch/minimal.launch"> </include> 
+    <!-- camera_server -->
+    <include file="$(find tracking)/launch/camera_server.launch"> </include> 
+    <!-- ball detector -->
+    <include file="$(find tracking)/launch/detection.launch"> </include>
+    <!-- motion control -->
+    
+    <!-- mission control -->
+    <include file="$(find mc)/launch/mission.launch"> </include>
+</launch>

@@ -248,8 +248,8 @@ int main(int argc, char **argv)
 	// Init ROS node
     ros::init(argc, argv, "ball_detector");
     ros::NodeHandle nh;	
-	pub1 = nh.advertise<std_msgs::String>("/detection/message1", 2);
-    pub2 = nh.advertise<std_msgs::String>("/detection/message2", 2);
+	pub1 = nh.advertise<std_msgs::String>("/detection/posrad", 2);
+    pub2 = nh.advertise<std_msgs::String>("/detection/5points", 2);
     
     // Obtain the parameters from server
     nh.getParam("/detection/low_hue",  low_hue);

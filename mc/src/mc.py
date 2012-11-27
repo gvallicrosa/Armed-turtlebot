@@ -65,15 +65,15 @@ class mc:
         rospy.loginfo("MC: Initializing mission control node...")
 
         self.beliefs = {
-                        'nodesOnline': 1, # Assume nodes are OK.
-                        'cameraCalibrated': 1, # Assume camera is calibrate.
-                        'crashed': 0,
-                        'targetLocated': 0,
-                        'atTarget': 0,
-                        'targetReachable': 1, # Assume target is reachable.
-                        'targetGrasped': 0,
+                        'nodesOnline': 1,         # Assume nodes are OK.
+                        'cameraCalibrated': 1,    # Assume camera is calibrated.
+                        'crashed': 0,             # Roomba crashed into something
+                        'targetLocated': 0,       # Camera can see the object from far away
+                        'atTarget': 0,            # Object near the robot
+                        'targetReachable': 1,     # Arm can grab the object
+                        'targetGrasped': 0,       # Object in hand 
                         'roombaBatteryPerc': 100, # Assume fully charged.
-                        'laptopBatteryPerc': 100 # Assume fully charged.
+                        'laptopBatteryPerc': 100  # Assume fully charged.
                         }
 
         self.currentTask = 0
@@ -225,9 +225,6 @@ class mc:
         #######################################################################
         # Rule: If everything is OK then grasp the target.
         if(self.beliefs['targetGrasped'] == 0):
-            # Assume success for now
-            self.beliefs['targetGrasped'] = 1
-
             rospy.loginfo("MC: I'm going to try to grasp the target!")
             self.currentTask = graspTarget()
 
