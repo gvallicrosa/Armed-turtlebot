@@ -37,6 +37,10 @@ split(const std::string &s, char delim)
 }
 const double PI = 3.141592653589793;
 
+// transformation parameters Cam2j4
+float rotx= 0,roty=0,rotz=-PI/2,transx=-0.047,transy=0,transz=-0.08;
+int debug=2;
+
 int main(int argc, char **argv)
 {
   // ROS initialisation --------------
@@ -61,8 +65,8 @@ int main(int argc, char **argv)
   static tf::TransformBroadcaster br;
   tf::Transform cam2j4;
   tf::Transform obj2cam;
-  cam2j4.setRotation( tf::Quaternion(0, 0, -PI/2) );
-  cam2j4.setOrigin(   tf::Vector3(-0.047,0, -0.08) );
+  cam2j4.setRotation( tf::Quaternion(rotx, roty, rotz) );
+  cam2j4.setOrigin(   tf::Vector3(transx, transy, transz) );
   obj2cam.setRotation( tf::Quaternion(0, 0, 0) );
   
   // Image containters ---------------
@@ -79,13 +83,13 @@ int main(int argc, char **argv)
   vpImageConvert::convert(cvI, vpI);
   
   // Display initialisation ---------------
-  #if defined VISP_HAVE_X11
-  vpDisplayX d;
-  #elif defined VISP_HAVE_GDI
-  vpDisplayGDI d;
-  #elif defined VISP_HAVE_OPEN_CV
+  //#if defined VISP_HAVE_X11
+  //vpDisplayX d;
+  //#elif defined VISP_HAVE_GDI
+  //vpDisplayGDI d;
+  //#elif defined VISP_HAVE_OPEN_CV
   vpDisplayOpenCV d;
-  #endif
+  //#endif
   d.init(vpI, 0, 0, "") ;
   
   vpDisplay::display(vpI);
@@ -160,8 +164,37 @@ int main(int argc, char **argv)
   
   double fps = 30.f;
   
+  int tx = (int)((transx + 0.1 )* 100 / 0.2);
+  int ty = (int)((transy + 0.1 )* 100 / 0.2);
+  int tz = (int)((transz + 0.1 )* 100 / 0.2) ;
+  int rx = (int)((rotx + PI/2 ) * 100/PI );
+  int ry = (int)((roty + PI/2 ) * 100/PI );
+  int rz = (int)((rotz + PI/2 ) * 100/PI );      
+  
   while( true )
   {
+     if (debug == 2){
+        cv::namedWindow( "Camera Transformation", CV_WINDOW_NORMAL| CV_GUI_EXPANDED);
+        
+        cv::createTrackbar( "rotx", "Camera Transformation", &rx, 100, 0 );
+        cv::createTrackbar( "roty", "Camera Transformation", &ry, 100, 0 );
+        cv::createTrackbar( "rotz", "Camera Transformation", &rz, 100, 0 );
+        rotx = (float) rx * PI/100 - PI/2;
+        roty = (float) ry * PI/100 - PI/2;
+        rotz = (float) rz * PI/100 - PI/2;
+        
+        cv::createTrackbar( "transx", "Camera Transformation", &tx, 100, 0 );
+        cv::createTrackbar( "transy", "Camera Transformation", &ty, 100, 0 );
+        cv::createTrackbar( "transz", "Camera Transformation", &tz, 100, 0 );
+        transx = (float)tx*0.2/100 - 0.1;
+        transy = (float)ty*0.2/100 - 0.1;
+        transz = (float)tz*0.2/100 - 0.1;
+        
+        cam2j4.setRotation( tf::Quaternion(rotx, roty, rotz) );
+        cam2j4.setOrigin(   tf::Vector3(transx, transy, transz) );
+    }
+  
+  
     double t0 = omp_get_wtime();
     capture >> cvI;
     if(cvI.empty())
@@ -200,12 +233,18 @@ int main(int argc, char **argv)
     
     sprintf(centerStr,"Center in pixels: (%f, %f), Radius in pixels: %f", IP[0].get_i(), IP[0].get_j(), rI);
     vpDisplay::displayCharString(vpI, vpImagePoint(20, 20), centerStr, vpColor::lightRed) ;
-    sprintf(realVals,"Center in world:  (%f, %f, %f), FPS: %lf, distance = %lf", t[0], t[1], t[2], fps, cv::sqrt(t[0]*t[0] 
+    //sprintf(realVals,"Center in world:  (%f, %f, %f), FPS: %lf, distance = %lf", t[0], t[1], t[2], fps, cv::sqrt(t[0]*t[0] 
+    //+ t[1]*t[1] + t[2]*t[2]) );
+    tf::Vector3 vec_tf= cam2j4.getOrigin(); 
+    sprintf(realVals,"Cam2j4:  (%f, %f, %f), FPS: %lf, distance = %lf", vec_tf[0], vec_tf[1], vec_tf[2], fps, cv::sqrt(t[0]*t[0] 
     + t[1]*t[1] + t[2]*t[2]) );
+    
     vpDisplay::displayCharString(vpI, vpImagePoint(40, 20), realVals, vpColor::lightRed) ;
     
     vpDisplay::flush(vpI);
     fps = 1/( omp_get_wtime() - t0 );
+    
+   
     
     obj2cam.setOrigin( tf::Vector3(t[0], t[1], t[2]) );
     br.sendTransform(tf::StampedTransform(cam2j4,  ros::Time::now(), "joint4",  "cam_pos"));

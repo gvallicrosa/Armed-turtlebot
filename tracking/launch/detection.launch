@@ -6,7 +6,7 @@
 	<param name="/detection/high_hue" value="50"  />
 	<param name="/detection/low_sat"  value="100" />
 	<param name="/detection/high_sat" value="180" />
-	<param name="/detection/debug"    value="0"   />
+	<param name="/detection/debug"    value="1"   />
     
     <!-- NODE -->
     <node name="ball_detection" pkg="tracking" type="detection" > </node> 
