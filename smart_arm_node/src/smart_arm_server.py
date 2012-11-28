@@ -58,9 +58,9 @@ def serviceHandler(req):
     elif req.what == 10:
         # go home
         home_pos = [0, -0.65, -1.93, 0]
-        ans = [arm.move_all(home_pos),]
+        ans = arm.move_all(home_pos)
     elif req.what == 11:
-        # go home
+        # increment base joint
         ans = [arm.move_joint(1, joints_curr[0] + req.data[0]),]
     else:
         # no valid request
