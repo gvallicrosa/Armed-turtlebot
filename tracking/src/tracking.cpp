@@ -109,9 +109,9 @@ int main(int argc, char **argv)
   
   //Initialize the tracking and display ---------------
     // ask user for input
-  ellipse.initTracking(vpI);
+//  ellipse.initTracking(vpI);
     // or use ros parameters
-//  ellipse.initTracking(vpI, N, x, y);
+  ellipse.initTracking(vpI, N, y, x);
 
   //ellipse.setDisplay(vpMeSite::RANGE_RESULT) ; // uncomment to show search lines
   vpDisplay::flush(vpI);
