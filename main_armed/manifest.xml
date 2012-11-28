@@ -1,0 +1,21 @@
+<package>
+  <description brief="main_armed">
+
+     main_armed
+
+  </description>
+  <author>Guillem Vallicrosa Massaguer</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/main_armed</url>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+  <depend package="dynamixel_msgs"/>
+  <depend package="tf"/>
+  <depend package="smart_arm_node"/>
+  <depend package="geometry_msgs"/>
+
+</package>
+
+

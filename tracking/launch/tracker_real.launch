@@ -1,0 +1,10 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+    <!-- PARAMETERS -->
+    <param name="/visualservoing/calibfile" value="$(find tracking)/src/calibData/img-00.pgm.xml" />
+    <param name="/visualservoing/cameraID"  value="1" />
+    
+    <!-- NODE -->
+    <node name="ball_tracking" pkg="tracking" type="tracking" > </node> 
+</launch>

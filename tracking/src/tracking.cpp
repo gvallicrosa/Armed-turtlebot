@@ -59,6 +59,7 @@ int main(int argc, char **argv)
   {
     x[i] = atoi(tokens[2*i].c_str());
     y[i] = atoi(tokens[2*i + 1].c_str());
+    std::cout << "(" << x[i] << ", " << y[i] << ")" << std::endl;
   }
    
   // Transform broadcaster
@@ -109,13 +110,13 @@ int main(int argc, char **argv)
   
   //Initialize the tracking and display ---------------
     // ask user for input
-  ellipse.initTracking(vpI);
+//  ellipse.initTracking(vpI);
     // or use ros parameters
-//  ellipse.initTracking(vpI, N, x, y);
+  ellipse.initTracking(vpI, N, y, x);
 
   //ellipse.setDisplay(vpMeSite::RANGE_RESULT) ; // uncomment to show search lines
   vpDisplay::flush(vpI);
-  
+//  cv::waitKey(0);
   //Load Camera parameters  --------------
   vpCameraParameters cam;
   std::string xmlName = calibfile;

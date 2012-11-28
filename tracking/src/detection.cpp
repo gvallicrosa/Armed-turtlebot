@@ -205,15 +205,18 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 	// Create output strings
 	// message 1 - ball centroid + radius
 	char str1[1024], str2[1024];
-	sprintf( str1, "%d %d %.3f ", centroid.x, centroid.y, circ_radius );	
+	sprintf( str1, "%d %d %.3f", centroid.x, centroid.y, circ_radius );	
 	string message1 = string(str1);
 
     // message 2 - Contour points
 	string message2 = "";
 	if (cont_points.size()!=0 ){
 		for (int i=0; i<5;i++){
-			sprintf(str2, "%d %d ", cont_points[i].x, cont_points[i].y );
+			sprintf(str2, "%d,%d", cont_points[i].x, cont_points[i].y );
 			message2.append( str2);
+			if (i<4) {
+			    message2.append(",");
+			}
 		}
 	}
 		
@@ -239,7 +242,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 	// Publish message1 and message 2	
 	std_msgs::String msg1, msg2;
     msg1.data = message1;
-    msg1.data = message2;
+    msg2.data = message2;
     	
 	pub1.publish(msg1);
 	pub2.publish(msg2);

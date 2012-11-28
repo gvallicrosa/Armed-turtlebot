@@ -57,8 +57,11 @@ def serviceHandler(req):
         ans = arm.fkine(joints_curr, True)[:3,3]
     elif req.what == 10:
         # go home
-#        home_pos = [,,,]
+        home_pos = [0, -0.65, -1.93, 0]
         ans = [arm.move_all(home_pos),]
+    elif req.what == 11:
+        # go home
+        ans = [arm.move_joint(1, joints_curr[0] + req.data[0]),]
     else:
         # no valid request
         rospy.logerr(('No valid service request (%s) to smart_arm_server' % req.what))
