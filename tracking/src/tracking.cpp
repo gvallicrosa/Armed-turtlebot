@@ -71,7 +71,7 @@ int main(int argc, char **argv)
   obj2cam.setRotation( tf::Quaternion(0, 0, 0) );
   
   // Image containters ---------------
-  vpImage<unsigned char> vpI;
+  vpImage<unsigned char> vpI, vpIshow;
   cv::Mat cvI;
   
   // Image grabber initialisation ---------------
@@ -100,21 +100,32 @@ int main(int argc, char **argv)
   vpMe me;             // VISP moving edge
 
   //Set the tracking parameters ---------------
-  me.setRange(20);
+  me.setRange(15);
   me.setSampleStep(2);
-  me.setPointsToTrack(300);
-  me.setThreshold(7500);
+  me.setPointsToTrack(350);
+  me.setThreshold(8500);
   ellipse.setMe(&me);
   ellipse.setCircle(true);
-  ellipse.setThresholdRobust(0.1); // default 0.2
+  ellipse.setThresholdRobust(0.25); // default 0.2
   
+  
+//  for (int j = 0; j < 5; ++j)
+//  {
+//    std::cout << x[j] << ", " << y[j] << std::endl;
+//    vpDisplay::displayCircle(vpI, 640-x[j],480-y[j],  3, vpColor::red, true);
+//    vpDisplay::displayCircle(vpI, y[j], x[j], 3, vpColor::green, true);
+//  }
+//  vpDisplay::flush(vpI);
+//  cv::waitKey(0);
+  
+
   //Initialize the tracking and display ---------------
     // ask user for input
 //  ellipse.initTracking(vpI);
     // or use ros parameters
   ellipse.initTracking(vpI, N, y, x);
 
-  //ellipse.setDisplay(vpMeSite::RANGE_RESULT) ; // uncomment to show search lines
+  ellipse.setDisplay(vpMeSite::RANGE_RESULT) ; // uncomment to show search lines
   vpDisplay::flush(vpI);
 //  cv::waitKey(0);
   //Load Camera parameters  --------------
@@ -172,6 +183,8 @@ int main(int argc, char **argv)
   int ry = (int)((roty + PI/2 ) * 100/PI );
   int rz = (int)((rotz + PI/2 ) * 100/PI );      
   
+  cv::Mat filt;  
+
   while( true )
   {
      if (debug == 2){
@@ -200,12 +213,16 @@ int main(int argc, char **argv)
     capture >> cvI;
     if(cvI.empty())
       break;
+
+    cv::Canny(cvI, filt, 3, 100);    
+
+    vpImageConvert::convert(filt, vpIshow);
     vpImageConvert::convert(cvI, vpI);
     vpDisplay::display(vpI);
     
     //Track the ellipse.
     try
-      {ellipse.track(vpI);}
+      {ellipse.track(vpIshow);}
     catch(...)
       {
         // do stuff with ROS
@@ -257,6 +274,7 @@ int main(int argc, char **argv)
     br.sendTransform(tf::StampedTransform(cam2j4,  ros::Time::now(), "joint4",  "cam_pos"));
     br.sendTransform(tf::StampedTransform(obj2cam, ros::Time::now(), "cam_pos", "obj_pos"));
   }
+
   capture.release();
   return 0;
 }

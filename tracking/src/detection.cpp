@@ -243,7 +243,8 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 	std_msgs::String msg1, msg2;
     msg1.data = message1;
     msg2.data = message2;
-    	
+        cout << message1 << endl;
+    	cout << message2 << endl << endl;
 	pub1.publish(msg1);
 	pub2.publish(msg2);
 	
