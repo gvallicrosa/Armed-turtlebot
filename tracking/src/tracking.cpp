@@ -39,7 +39,7 @@ const double PI = 3.141592653589793;
 
 // transformation parameters Cam2j4
 float rotx= 0,roty=0,rotz=-PI/2,transx=-0.047,transy=0,transz=-0.08;
-int debug=2;
+int debug=1;
 
 int main(int argc, char **argv)
 {
@@ -73,6 +73,7 @@ int main(int argc, char **argv)
   // Image containters ---------------
   vpImage<unsigned char> vpI, vpIshow;
   cv::Mat cvI;
+  cv::Mat filt; 
   
   // Image grabber initialisation ---------------
   cv::VideoCapture capture(cameraid);
@@ -81,7 +82,8 @@ int main(int argc, char **argv)
   capture >> cvI;
   
   // Convert image ---------------
-  vpImageConvert::convert(cvI, vpI);
+  cv::Canny(cvI, filt, 3, 100);
+  vpImageConvert::convert(filt, vpI);
   
   // Display initialisation ---------------
   //#if defined VISP_HAVE_X11
@@ -121,9 +123,9 @@ int main(int argc, char **argv)
 
   //Initialize the tracking and display ---------------
     // ask user for input
-//  ellipse.initTracking(vpI);
+  ellipse.initTracking(vpI);
     // or use ros parameters
-  ellipse.initTracking(vpI, N, y, x);
+//  ellipse.initTracking(vpI, N, y, x);
 
   ellipse.setDisplay(vpMeSite::RANGE_RESULT) ; // uncomment to show search lines
   vpDisplay::flush(vpI);
@@ -183,11 +185,11 @@ int main(int argc, char **argv)
   int ry = (int)((roty + PI/2 ) * 100/PI );
   int rz = (int)((rotz + PI/2 ) * 100/PI );      
   
-  cv::Mat filt;  
+   
 
   while( true )
   {
-     if (debug == 2){
+     if (debug == 1){
         cv::namedWindow( "Camera Transformation", CV_WINDOW_NORMAL| CV_GUI_EXPANDED);
         
         cv::createTrackbar( "rotx", "Camera Transformation", &rx, 100, 0 );

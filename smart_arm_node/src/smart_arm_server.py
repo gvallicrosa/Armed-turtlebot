@@ -56,8 +56,12 @@ def serviceHandler(req):
         # position status
         ans = arm.fkine(joints_curr, True)[:3,3]
     elif req.what == 10:
-        # go home
-        home_pos = [0, -0.65, -1.93, 0]
+        if req.data[0] == -1:
+            # go home and open hand
+            home_pos = [0, -0.65, -1.93, 0, -1]
+        else:
+            # go home
+            home_pos = [0, -0.65, -1.93, 0]
         ans = arm.move_all(home_pos)
     elif req.what == 11:
         # increment base joint
@@ -330,7 +334,7 @@ class Arm(object):
         '''
         # Send movement commands to the smart_arm_controller one by one
         ans = list()
-        for i in range(4):
+        for i in range(len(qs)):
             ans.append(self.move_joint(i+1,qs[i]))
         return ans
             

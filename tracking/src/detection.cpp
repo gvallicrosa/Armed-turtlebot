@@ -43,8 +43,9 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 	
 	// Debug
 	// 0 - No debug
-	// 1 - Show windows
-	// 2 - Show windows + set threshold parameters 
+	// 1 - Show Display image
+	// 2 - Show all windows
+	// 3 - Show windows + set threshold parameters 
 
 	// parameters to set C310 webcam---big blue ball
 	/*double low_hue = 20, high_hue = 50; // 20 -50	
@@ -79,15 +80,6 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 	cv::GaussianBlur(cv_ptr->image, imWebcam,cv::Size(11,11),11);
 	cv::cvtColor( imWebcam, imHSV, CV_BGR2HSV );
 	min_dist = imWebcam.rows/10;
-	/*
-	if ( debug == 2){
-	    ROS_INFO("Segmentation: enter low and high hue thresholds [0 - 255] : ");
-	    cin>>low_hue;
-	    cin>>high_hue;
-	    ROS_INFO("Segmentation: enter low and high saturation thresholds [0 255]");
-	    cin>>low_sat;
-	    cin>>high_sat;
-	}*/
 	cv::inRange(imHSV,cv::Scalar(low_hue,low_sat,0),cv::Scalar(high_hue,high_sat,255),mask);
 	
 
@@ -161,7 +153,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 		cv::Mat im_roi = mask2(roi);
 		im_roi = im_roi.clone();
 		
-		if (debug == 1 || debug == 2){
+		if (debug > 1 ){
 		    cv::namedWindow( "Region of Interest",  CV_WINDOW_NORMAL| CV_GUI_EXPANDED  );
 	        cv::imshow("Region of Interest",im_roi); 
 		}
@@ -222,21 +214,25 @@ void imageCallback(const sensor_msgs::ImageConstPtr& original_image)
 		
 	
 	// Display images 
-	if ( debug==1 || debug == 2){	
+	if ( debug>1){	
 	    cv::namedWindow( "Segmentation",  CV_WINDOW_NORMAL| CV_GUI_EXPANDED  );
 	    cv::namedWindow( "Filtered segmentation",  CV_WINDOW_NORMAL| CV_GUI_EXPANDED  );
-	    cv::namedWindow( "Original image",  CV_WINDOW_NORMAL| CV_GUI_EXPANDED  );	
-	       
+	    
 	    cv::imshow("Segmentation",mask);
 	    cv::imshow("Filtered segmentation",mask2);
-	    cv::imshow("Original image",imWebcam);
+	   
 	    
-	    if (debug == 2){ // create sliders
+	    if (debug == 3){ // create sliders
 	        cv::createTrackbar( "low_Hue", "Segmentation", &low_hue, 256, 0 );
             cv::createTrackbar( "high_Hue", "Segmentation", &high_hue, 256, 0 );
             cv::createTrackbar( "low_Sat", "Segmentation", &low_sat, 256, 0 );
             cv::createTrackbar( "high_Sat", "Segmentation", &high_sat, 256, 0 );	    
 	    }
+	}
+	if (debug >0){
+	    cv::namedWindow( "Original image",  CV_WINDOW_NORMAL| CV_GUI_EXPANDED  );	
+	    cv::imshow("Original image",imWebcam);   
+	
 	}
 	
 	// Publish message1 and message 2	
