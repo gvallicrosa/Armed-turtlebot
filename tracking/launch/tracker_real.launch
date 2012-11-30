@@ -5,8 +5,10 @@
     <param name="/visualservoing/calibfile" value="$(find tracking)/src/calibData/img-00.pgm.xml" />
     <param name="/visualservoing/cameraID"  value="1" />
     
-    <!-- Input_mode 0 = Automatic  1 = Manually  -->
-    <param name="/visualservoing/input_mode"  value="0" />
+    <!-- Input_mode 1 = Automatic  0 = Manually  -->
+    <!-- Debug_mode 1 = W/Sliders  0 = No Sliders  -->
+    <param name="/visualservoing/input_mode"  value="1" />
+    <param name="/visualservoing/debug_mode"  value="0" />
     
     <!-- NODE -->
     <node name="ball_tracking" pkg="tracking" type="tracking" > </node> 

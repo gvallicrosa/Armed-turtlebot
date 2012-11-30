@@ -120,7 +120,6 @@ if __name__ == "__main__":
     ttold = 0
     num = 0
     while num < 10:
-#        ipdb.set_trace()
         try:
             tt = tflis.getLatestCommonTime("/joint0", "/obj_pos")
             if not tt == ttold:
@@ -135,26 +134,34 @@ if __name__ == "__main__":
         time.sleep(0.5)
     x /= 10.0
     y /= 10.0
-    z /= 10.0
-#    rospy.loginfo(('tf last trans : %s' % trans))
+    z /= 10.
     rospy.loginfo(('tf position   : %s, %s, %s' % (x, y, z)))
-    
+#    ipdb.set_trace()
+    m = (x**2 + y**2)**0.5
+    x = (x/m)*(m-0.05)
+    y = (y/m)*(m-0.05)+0.025
+    z = z + 0.035
+    # Re-open the hand
+    service_handler(5, [-1,])
+    time.sleep(.5)
+
     # Move arm to the position with security
     rospy.loginfo('>>> Move arm with security')
-    service_handler(7, [x-0.02, y-0.03, 0.15])
+    service_handler(7, [x, y, z + 0.05])
     
     # Move arm to the position
     rospy.loginfo('>>> Move arm to ball')
-    service_handler(7, [x-0.02, y-0.03, 0.10])
-    time.sleep(1)
+    service_handler(7, [x, y, z])
+    time.sleep(2)
     
     # Grab the ball
     rospy.loginfo('>>> Grab the ball')
-    service_handler(8)
+    service_handler(5, [1,])
+#    service_handler(8)
     
     # Move arm to the position with security
     rospy.loginfo('>>> Move arm with security')
-    service_handler(7, [x-0.02, y-0.03, 0.15])
+    service_handler(7, [x, y, z + 0.05])
     
     # Return home position
     rospy.loginfo('>>> Go back home')

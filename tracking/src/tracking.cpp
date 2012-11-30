@@ -39,7 +39,7 @@ const double PI = 3.141592653589793;
 
 // transformation parameters Cam2j4
 float rotx= 0,roty=0,rotz=-PI/2,transx=-0.047,transy=0,transz=-0.08;
-int debug=1;
+int debug;
 
 int main(int argc, char **argv)
 {
@@ -52,6 +52,7 @@ int main(int argc, char **argv)
   nodeh.getParam("/visualservoing/cameraID",  cameraid);
   nodeh.getParam("/visualservoing/circleInit", circleString);
   nodeh.getParam("/visualservoing/input_mode", input_mode);
+  nodeh.getParam("/visualservoing/debug_mode", debug);
   unsigned int x[5];
   unsigned int y[5];
   std::vector<std::string> tokens = split(circleString, ',');
