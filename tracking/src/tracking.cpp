@@ -47,10 +47,11 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "ball_tracking");
   ros::NodeHandle nodeh;
   std::string calibfile, circleString;
-  int cameraid;
+  int cameraid, input_mode;
   nodeh.getParam("/visualservoing/calibfile", calibfile);
   nodeh.getParam("/visualservoing/cameraID",  cameraid);
   nodeh.getParam("/visualservoing/circleInit", circleString);
+  nodeh.getParam("/visualservoing/input_mode", input_mode);
   unsigned int x[5];
   unsigned int y[5];
   std::vector<std::string> tokens = split(circleString, ',');
@@ -123,10 +124,15 @@ int main(int argc, char **argv)
 
   //Initialize the tracking and display ---------------
     // ask user for input
-  ellipse.initTracking(vpI);
-    // or use ros parameters
-//  ellipse.initTracking(vpI, N, y, x);
+    if (input_mode==0){
+        ellipse.initTracking(vpI);
+  
+    }else{
+        ellipse.initTracking(vpI, N, y, x);
 
+    }
+    // or use ros parameters
+//  
   ellipse.setDisplay(vpMeSite::RANGE_RESULT) ; // uncomment to show search lines
   vpDisplay::flush(vpI);
 //  cv::waitKey(0);
