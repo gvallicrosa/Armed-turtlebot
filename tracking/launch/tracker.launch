@@ -2,9 +2,14 @@
 
 <launch>
     <!-- PARAMETERS -->
+    <!-- Path to calibration file -->
     <param name="/visualservoing/calibfile" value="$(find tracking)/src/calibData/img-00.pgm.xml" />
+    <!-- Number of /dev/video$ device  -->
     <param name="/visualservoing/cameraID"  value="1" />
-    <param name="/visualservoing/circleInit" value="283,247,398,266,424,378,380,438,248,420" />
+    <!-- Input_mode 1 = Automatic  0 = Manually  -->
+    <param name="/visualservoing/input_mode"  value="0" />
+    <!-- Debug_mode 1 = W/Sliders  0 = No Sliders  -->
+    <param name="/visualservoing/debug_mode"  value="1" />
     
     <!-- NODE -->
     <node name="ball_tracking" pkg="tracking" type="tracking" > </node> 

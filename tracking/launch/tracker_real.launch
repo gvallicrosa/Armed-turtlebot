@@ -2,12 +2,13 @@
 
 <launch>
     <!-- PARAMETERS -->
+    <!-- Path to calibration file -->
     <param name="/visualservoing/calibfile" value="$(find tracking)/src/calibData/img-00.pgm.xml" />
+    <!-- Number of /dev/video$ device  -->
     <param name="/visualservoing/cameraID"  value="1" />
-    
     <!-- Input_mode 1 = Automatic  0 = Manually  -->
-    <!-- Debug_mode 1 = W/Sliders  0 = No Sliders  -->
     <param name="/visualservoing/input_mode"  value="1" />
+    <!-- Debug_mode 1 = W/Sliders  0 = No Sliders  -->
     <param name="/visualservoing/debug_mode"  value="0" />
     
     <!-- NODE -->

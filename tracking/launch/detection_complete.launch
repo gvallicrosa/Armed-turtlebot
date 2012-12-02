@@ -1,0 +1,8 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+    <!-- camera server (image source) -->
+    <include file="$(find tracking)/launch/camera_server.launch"> </include> 
+    <!-- detection node -->
+    <include file="$(find tracking)/launch/detection.launch"> </include> 
+</launch>

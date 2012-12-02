@@ -1,0 +1,10 @@
+<!-- -*- mode: XML -*- -->
+
+<launch>
+    <!-- smart_arm_controller and smart_arm_server -->
+    <include file="$(find smart_arm_node)/launch/minimal.launch"> </include>
+    <!-- camera_server and detector -->
+    <include file="$(find tracking)/launch/detection_complete.launch"> </include>
+    <!-- doEverything -->
+    <node name="doEverything" pkg="main_armed" type="doEverything.py"> </node>
+</launch>
