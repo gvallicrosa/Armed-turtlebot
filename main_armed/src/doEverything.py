@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys, time, ipdb
+import os, sys, time
 
 # ROS init
 import roslib
@@ -136,7 +136,6 @@ if __name__ == "__main__":
     y /= 10.0
     z /= 10.
     rospy.loginfo(('tf position   : %s, %s, %s' % (x, y, z)))
-#    ipdb.set_trace()
     m = (x**2 + y**2)**0.5
     x = (x/m)*(m-0.05)
     y = (y/m)*(m-0.05)+0.025
