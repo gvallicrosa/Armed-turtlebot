@@ -2,7 +2,7 @@
 
 # DEPENDENCIES
 ## Install dependencies
-sudo apt-get install pyqt4-dev-tools python-qt4 python-qt4-dev qt4-dev-tools python-rosdep ros-fuerte-dynamixel-motor xterm
+sudo apt-get install pyqt4-dev-tools python-qt4 python-qt4-dev qt4-dev-tools python-rosdep ros-fuerte-dynamixel-motor xterm ros-fuerte-camera-umd
 
 # SMART_ARM_CONTROLLER
 ## Move to ros folder and download the smart_arm_controller
